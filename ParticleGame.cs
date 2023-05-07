@@ -27,7 +27,7 @@ namespace ParticleGame
             IntPtr window = SDL.SDL_CreateWindow("Particle Game", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED, 500, 500, 0);
             IntPtr screen = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
 
-            IntPtr renderTexture = SDL.SDL_CreateTexture(screen, SDL.SDL_PIXELFORMAT_ARGB8888, (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC, 500, 500);
+            IntPtr renderTexture = SDL.SDL_CreateTexture(screen, SDL.SDL_PIXELFORMAT_ARGB8888, (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, 500, 500);
             IntPtr pixels = Marshal.AllocHGlobal(500 * 500 * 4);
 
             ParticleData[,] particleField = new ParticleData[500, 500];
@@ -44,8 +44,6 @@ namespace ParticleGame
             int brushSize = 5;
 
             Point previousMousePos = new(-1, -1);
-
-            int particles = 0;
 
             ulong renderStart = 0;
             ulong renderEnd = 0;
@@ -138,7 +136,7 @@ namespace ParticleGame
                     }
                 }
 
-                particles = 0;
+                int particles = 0;
                 List<Point> queue = new(particleField.Length);
                 for (int x = 0; x < particleField.GetLength(0); x++)
                 {
@@ -210,17 +208,17 @@ namespace ParticleGame
                     data.Age += frameTime;
                 }
 
-                _ = SDL.SDL_LockTexture(renderTexture, IntPtr.Zero, out pixels, out int _);
+                _ = SDL.SDL_LockTexture(renderTexture, IntPtr.Zero, out pixels, out int pitch);
                 for (int x = 0; x < particleField.GetLength(0); x++)
                 {
                     for (int y = 0; y < particleField.GetLength(1); y++)
                     {
-                        int offset = ((500 * y) + x) * 4;
+                        int offset = (pitch * y) + (x * 4);
                         (byte, byte, byte) color = ParticleTypes.Colors[particleField[x, y].ParticleType];
-                        Marshal.WriteByte(pixels + offset, 255);
-                        Marshal.WriteByte(pixels + offset + 1, color.Item1);
-                        Marshal.WriteByte(pixels + offset + 2, color.Item2);
-                        Marshal.WriteByte(pixels + offset + 3, color.Item3);
+                        Marshal.WriteByte(pixels + offset, color.Item3);
+                        Marshal.WriteByte(pixels + offset + 1, color.Item2);
+                        Marshal.WriteByte(pixels + offset + 2, color.Item1);
+                        Marshal.WriteByte(pixels + offset + 3, 255);
                     }
                 }
 
