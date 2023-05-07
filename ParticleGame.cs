@@ -5,6 +5,8 @@ namespace ParticleGame
 {
     public static class ParticleGame
     {
+        public static Random RNG = new();
+
         private static Point[] Adjacent = new Point[4] { new(1, 0), new(-1, 0), new(0, 1), new(0, -1) };
 
         private static readonly ulong performanceFrequency = SDL.SDL_GetPerformanceFrequency();
