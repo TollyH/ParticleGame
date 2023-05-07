@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Immutable;
+using System.Drawing;
 
 namespace ParticleGame
 {
@@ -18,5 +19,12 @@ namespace ParticleGame
             field[pos1.X, pos1.Y].ParticleType = ParticleTypes.Types.Steam;
             field[pos1.X, pos1.Y].Age = 0;
         }
+
+        public static readonly ImmutableDictionary<(ParticleTypes.Types, ParticleTypes.Types), Interaction> Interactions =
+            new Dictionary<(ParticleTypes.Types, ParticleTypes.Types), Interaction>()
+            {
+                { (ParticleTypes.Types.Lava, ParticleTypes.Types.Water), new(LavaWaterInteraction) },
+                { (ParticleTypes.Types.Water, ParticleTypes.Types.Magma), new(WaterMagmaInteraction) }
+            }.ToImmutableDictionary();
     }
 }
