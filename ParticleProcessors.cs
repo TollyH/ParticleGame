@@ -16,6 +16,7 @@ namespace ParticleGame
                 {
                     // Destroy particle if bottom reached
                     newPos = new Point(-1, -1);
+                    break;
                 }
                 else if (field[newPos.X, newPos.Y + 1].ParticleType == ParticleTypes.Types.Air)
                 {
@@ -52,6 +53,14 @@ namespace ParticleGame
                                 break;
                             }
                         }
+                        if (newPos == new Point(-1, -1))
+                        {
+                            break;
+                        }
+                    }
+                    if (newPos == new Point(-1, -1))
+                    {
+                        break;
                     }
                 }
             }
