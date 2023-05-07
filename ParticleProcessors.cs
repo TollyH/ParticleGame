@@ -75,7 +75,7 @@ namespace ParticleGame
                 // Destroy particle if bottom reached
                 newPos = new Point(-1, -1);
             }
-            else if (field[newPos.X, newPos.Y + 1].ParticleType == ParticleTypes.Types.Air)
+            else if (field[newPos.X, newPos.Y + 1].ParticleType is ParticleTypes.Types.Air or ParticleTypes.Types.Water)
             {
                 // Fall down if possible
                 newPos = new Point(newPos.X, newPos.Y + 1);
@@ -83,7 +83,7 @@ namespace ParticleGame
             else
             {
                 // Try to move to either diagonal downward, with an equal chance of either direction
-                int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? new int[] { 1, -1 } : new int[] {1, -1 };
+                int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? new int[] { 1, -1 } : new int[] { -1, 1 };
                 foreach (int dx in sides)
                 {
                     int newX = newPos.X + dx;
@@ -94,7 +94,7 @@ namespace ParticleGame
                         newPos = new Point(-1, -1);
                         break;
                     }
-                    if (field[newX, newPos.Y].ParticleType == ParticleTypes.Types.Air)
+                    if (field[newX, newY].ParticleType == ParticleTypes.Types.Air)
                     {
                         newPos = new Point(newX, newY);
                         break;
@@ -129,13 +129,13 @@ namespace ParticleGame
                     if (newX < 0 || newX >= field.GetLength(0))
                     {
                         // Destroy particle if edge reached
-                        position = new Point(-1, -1);
+                        newPos = new Point(-1, -1);
                         break;
                     }
                     Point tryPos = new(newX, position.Y - 1);
                     if (field[tryPos.X, tryPos.Y].ParticleType is not ParticleTypes.Types.Steam and not ParticleTypes.Types.Block)
                     {
-                        position = tryPos;
+                        newPos = tryPos;
                         break;
                     }
                 }
