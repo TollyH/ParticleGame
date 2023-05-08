@@ -149,6 +149,7 @@ namespace ParticleGame
                         }
                     }
                 }
+                queue.Sort((x, y) => RNG.Next());
 
                 while (queue.Count > 0)
                 {
