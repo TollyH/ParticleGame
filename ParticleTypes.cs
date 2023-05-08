@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace ParticleGame
+﻿namespace ParticleGame
 {
     public static class ParticleTypes
     {
@@ -23,7 +21,7 @@ namespace ParticleGame
             Types.Steam, Types.Magma
         };
 
-        public static readonly ImmutableDictionary<Types, (byte, byte, byte)> Colors = new Dictionary<Types, (byte, byte, byte)>()
+        public static readonly Dictionary<Types, (byte, byte, byte)> Colors = new()
         {
             {Types.Air, (0, 0, 0)},
             {Types.Block, (127, 127, 127)},
@@ -33,6 +31,6 @@ namespace ParticleGame
             {Types.Lava, (255, 32, 32)},
             {Types.Steam, (192, 192, 192)},
             {Types.Magma, (119, 0, 0)}
-        }.ToImmutableDictionary();
+        };
     }
 }

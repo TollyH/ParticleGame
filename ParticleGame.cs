@@ -30,11 +30,11 @@ namespace ParticleGame
             IntPtr renderTexture = SDL.SDL_CreateTexture(screen, SDL.SDL_PIXELFORMAT_ARGB8888, (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, 500, 500);
             IntPtr pixels = Marshal.AllocHGlobal(500 * 500 * 4);
 
-            ParticleData[,] particleField = new ParticleData[500, 500];
+            ParticleField particleField = new(500, 500);
 
-            for (int x = 0; x < particleField.GetLength(0); x++)
+            for (int x = 0; x < 500; x++)
             {
-                for (int y = 0; y < particleField.GetLength(1); y++)
+                for (int y = 0; y < 500; y++)
                 {
                     particleField[x, y] = new ParticleData(ParticleTypes.Types.Air, new Point(x, y));
                 }
@@ -137,27 +137,38 @@ namespace ParticleGame
                 }
 
                 int particles = 0;
-                List<Point> queue = new(particleField.Length);
-                for (int x = 0; x < particleField.GetLength(0); x++)
+                HashSet<Point> queue = new(500 * 500);
+                List<Point> points = new(500 * 500);
+                for (int x = 0; x < 500; x++)
                 {
-                    for (int y = 0; y < particleField.GetLength(1); y++)
+                    for (int y = 0; y < 500; y++)
                     {
                         if (ParticleProcessors.Processors.ContainsKey(particleField[x, y].ParticleType))
                         {
-                            queue.Add(new Point(x, y));
+                            Point position = new(x, y);
+                            _ = queue.Add(position);
+                            points.Add(position);
                             particles++;
                         }
                     }
                 }
-                queue.Sort((x, y) => RNG.Next());
+                points.Sort((x, y) => RNG.Next());
 
                 while (queue.Count > 0)
                 {
-                    Point position = queue[^1];
-                    queue.RemoveAt(queue.Count - 1);
+                    Point position = points[^1];
+                    points.RemoveAt(points.Count - 1);
+                    if (!queue.Remove(position))
+                    {
+                        continue;
+                    }
                     int x = position.X;
                     int y = position.Y;
                     ParticleData data = particleField[x, y];
+                    if (data.ParticleType == ParticleTypes.Types.Air)
+                    {
+                        continue;
+                    }
 
                     Point newPos = ParticleProcessors.Processors[data.ParticleType](position, particleField, data);
                     if (newPos == new Point(-1, -1))
@@ -172,7 +183,8 @@ namespace ParticleGame
                         particleField[x, y] = particleField[newPos.X, newPos.Y];
                         if (queue.Remove(newPos))
                         {
-                            queue.Add(position);
+                            _ = queue.Add(position);
+                            points.Add(position);
                         }
                         particleField[newPos.X, newPos.Y] = data;
                         // Check adjacent particles for interactions
@@ -180,7 +192,7 @@ namespace ParticleGame
                         {
                             Point otherPos = new(newPos.X + adj.X, newPos.Y + adj.Y);
                             if (otherPos.X < 0 || otherPos.Y < 0
-                                || otherPos.X >= particleField.GetLength(0) || otherPos.Y >= particleField.GetLength(1))
+                                || otherPos.X >= 500 || otherPos.Y >= 500)
                             {
                                 continue;
                             }
@@ -192,11 +204,6 @@ namespace ParticleGame
                             else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
                             {
                                 ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
-                            }
-                            if (particleField[otherPos.X, otherPos.Y].ParticleType == ParticleTypes.Types.Air)
-                            {
-                                // Interaction deleted other particle
-                                _ = queue.Remove(otherPos);
                             }
                             if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
                             {
@@ -210,12 +217,12 @@ namespace ParticleGame
                 }
 
                 _ = SDL.SDL_LockTexture(renderTexture, IntPtr.Zero, out pixels, out int pitch);
-                for (int x = 0; x < particleField.GetLength(0); x++)
+                for (int x = 0; x < 500; x++)
                 {
-                    for (int y = 0; y < particleField.GetLength(1); y++)
+                    for (int y = 0; y < 500; y++)
                     {
                         int offset = (pitch * y) + (x * 4);
-                        (byte, byte, byte) color = ParticleTypes.Colors[particleField[x, y].ParticleType];
+                        (byte, byte, byte) color = particleField.ParticleColors[x, y];
                         Marshal.WriteByte(pixels + offset, color.Item3);
                         Marshal.WriteByte(pixels + offset + 1, color.Item2);
                         Marshal.WriteByte(pixels + offset + 2, color.Item1);

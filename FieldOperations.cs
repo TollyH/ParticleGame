@@ -4,17 +4,17 @@ namespace ParticleGame
 {
     public static class FieldOperations
     {
-        public static void BrushDraw(ParticleData[,] field, Point position, ParticleTypes.Types particleType, int brushSize = 1)
+        public static void BrushDraw(ParticleField field, Point position, ParticleTypes.Types particleType, int brushSize = 1)
         {
             int offset = brushSize / 2;
             // Constrain to the boundaries of the field
             int startX = Math.Max(0, position.X - offset);
-            int endX = Math.Min(field.GetLength(0), position.X + offset);
+            int endX = Math.Min(500, position.X + offset);
             for (int x = startX; x < endX; x++)
             {
                 // Constrain to the boundaries of the field
                 int startY = Math.Max(0, position.Y - offset);
-                int endY = Math.Min(field.GetLength(1), position.Y + offset);
+                int endY = Math.Min(500, position.Y + offset);
                 for (int y = startY; y < endY; y++)
                 {
                     field[x, y] = new ParticleData(particleType, new Point(x, y));
@@ -22,7 +22,7 @@ namespace ParticleGame
             }
         }
 
-        public static void BrushLine(ParticleData[,] field, Point startPos, Point endPos, ParticleTypes.Types particleType,
+        public static void BrushLine(ParticleField field, Point startPos, Point endPos, ParticleTypes.Types particleType,
             int brushSize = 1)
         {
             // Bresenham's line algorithm

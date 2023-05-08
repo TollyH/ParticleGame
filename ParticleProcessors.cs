@@ -1,18 +1,17 @@
-﻿using System.Collections.Immutable;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace ParticleGame
 {
     public static class ParticleProcessors
     {
-        public delegate Point Processor(Point position, ParticleData[,] field, ParticleData data);
+        public delegate Point Processor(Point position, ParticleField field, ParticleData data);
 
-        public static Point ProcessorWater(Point position, ParticleData[,] field, ParticleData data)
+        public static Point ProcessorWater(Point position, ParticleField field, ParticleData data)
         {
             Point newPos = position;
             for (int i = 0; i < ParticleGame.RNG.Next(1, 3); i++)
             {
-                if (newPos.Y == field.GetLength(1) - 1)
+                if (newPos.Y == 500 - 1)
                 {
                     // Destroy particle if bottom reached
                     newPos = new Point(-1, -1);
@@ -41,7 +40,7 @@ namespace ParticleGame
                         foreach (int dx in sides)
                         {
                             int newX = newPos.X + dx;
-                            if (newX < 0 || newX >= field.GetLength(0))
+                            if (newX < 0 || newX >= 500)
                             {
                                 // Destroy particle if edge reached
                                 newPos = new Point(-1, -1);
@@ -67,10 +66,10 @@ namespace ParticleGame
             return newPos;
         }
 
-        public static Point ProcessorSand(Point position, ParticleData[,] field, ParticleData data)
+        public static Point ProcessorSand(Point position, ParticleField field, ParticleData data)
         {
             Point newPos = position;
-            if (newPos.Y == field.GetLength(1) - 1)
+            if (newPos.Y == 500 - 1)
             {
                 // Destroy particle if bottom reached
                 newPos = new Point(-1, -1);
@@ -88,7 +87,7 @@ namespace ParticleGame
                 {
                     int newX = newPos.X + dx;
                     int newY = newPos.Y + 1;
-                    if (newX < 0 || newX >= field.GetLength(0) || newY >= field.GetLength(1))
+                    if (newX < 0 || newX >= 500 || newY >= 500)
                     {
                         // Destroy particle if edge reached
                         newPos = new Point(-1, -1);
@@ -104,7 +103,7 @@ namespace ParticleGame
             return newPos;
         }
 
-        public static Point ProcessorSteam(Point position, ParticleData[,] field, ParticleData data)
+        public static Point ProcessorSteam(Point position, ParticleField field, ParticleData data)
         {
             if (data.Age >= 5)
             {
@@ -126,7 +125,7 @@ namespace ParticleGame
                 foreach (int dx in xOffsets)
                 {
                     int newX = position.X + dx;
-                    if (newX < 0 || newX >= field.GetLength(0))
+                    if (newX < 0 || newX >= 500)
                     {
                         // Destroy particle if edge reached
                         newPos = new Point(-1, -1);
@@ -148,7 +147,7 @@ namespace ParticleGame
                 foreach (int dx in sides)
                 {
                     int newX = newPos.X + dx;
-                    if (newX < 0 || newX >= field.GetLength(0))
+                    if (newX < 0 || newX >= 500)
                     {
                         // Destroy particle if edge reached
                         newPos = new Point(-1, -1);
@@ -165,13 +164,13 @@ namespace ParticleGame
             return newPos;
         }
 
-        public static readonly ImmutableDictionary<ParticleTypes.Types, Processor> Processors = new Dictionary<ParticleTypes.Types, Processor>()
+        public static readonly Dictionary<ParticleTypes.Types, Processor> Processors = new()
         {
             { ParticleTypes.Types.Water, new(ProcessorWater) },
             { ParticleTypes.Types.Sand, new(ProcessorSand) },
             { ParticleTypes.Types.RedSand, new(ProcessorSand) },
             { ParticleTypes.Types.Lava, new(ProcessorWater) },
             { ParticleTypes.Types.Steam, new(ProcessorSteam) }
-        }.ToImmutableDictionary();
+        };
     }
 }
