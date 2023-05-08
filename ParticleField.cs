@@ -25,5 +25,10 @@
         {
             return ParticleData.GetLength(dimension);
         }
+
+        public void UpdateColor(int x, int y)
+        {
+            ParticleColors[x, y] = ParticleTypes.Colors[ParticleData[x, y].ParticleType];
+        }
     }
 }

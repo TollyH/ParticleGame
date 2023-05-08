@@ -192,45 +192,53 @@ namespace ParticleGame
                             _ = queue.Add(position);
                             points.Add(position);
                         }
-                        particleField[newPos.X, newPos.Y] = data;
+                        particleField[newPos.X, newPos.Y] = data;   
                         bool allSameAdjacent = true;
                         // Check particles for interactions and to see whether to fall asleep
                         foreach (Point adj in Adjacent)
                         {
                             Point otherPos = new(newPos.X + adj.X, newPos.Y + adj.Y);
-                            if (otherPos.X < 0 || otherPos.Y < 0
-                                || otherPos.X >= 500 || otherPos.Y >= 500)
+                            if (otherPos.X >= 0 && otherPos.Y >= 0
+                                && otherPos.X < 500 && otherPos.Y < 500)
                             {
-                                continue;
-                            }
-                            ParticleData otherData = particleField[otherPos.X, otherPos.Y];
-                            ParticleTypes.Types otherType = otherData.ParticleType;
-                            if (otherType != data.ParticleType)
-                            {
-                                allSameAdjacent = false;
+                                ParticleData otherData = particleField[otherPos.X, otherPos.Y];
+                                ParticleTypes.Types otherType = otherData.ParticleType;
+                                if (otherType != data.ParticleType)
+                                {
+                                    allSameAdjacent = false;
+                                }
+                                // Only run if particle moved
+                                if (newPos != position)
+                                {
+                                    // Relative to this particle's original position
+                                    // If moving toward a particle of the same type, make sure it is awake
+                                    otherData.Awake = true;
+                                    if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
+                                    {
+                                        ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
+                                    }
+                                    else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
+                                    {
+                                        ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
+                                    }
+                                    if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
+                                    {
+                                        // Interaction deleted current particle
+                                        break;
+                                    }
+                                }
                             }
                             // Only run if particle moved
                             if (newPos != position)
                             {
-                                ParticleData originalAdjacentData = particleField[position.X + adj.X, position.Y + adj.Y];
-                                // Relative to this particle's original position
-                                // If moving away from a particle of the same type, make sure it is awake
-                                particleField[position.X + adj.X, position.Y + adj.Y].Awake = true;
-                                // Relative to this particle's original position
-                                // If moving toward a particle of the same type, make sure it is awake
-                                otherData.Awake = true;
-                                if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
+                                Point originalAdjacentPos = new(position.X + adj.X, position.Y + adj.Y);
+                                if (originalAdjacentPos.X >= 0 && originalAdjacentPos.Y >= 0
+                                    && originalAdjacentPos.X < 500 && originalAdjacentPos.Y < 500)
                                 {
-                                    ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
-                                }
-                                else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
-                                {
-                                    ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
-                                }
-                                if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
-                                {
-                                    // Interaction deleted current particle
-                                    break;
+                                    ParticleData originalAdjacentData = particleField[originalAdjacentPos.X, originalAdjacentPos.Y];
+                                    // Relative to this particle's original position
+                                    // If moving away from a particle of the same type, make sure it is awake
+                                    originalAdjacentData.Awake = true;
                                 }
                             }
                         }
