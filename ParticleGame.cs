@@ -152,6 +152,7 @@ namespace ParticleGame
                         }
                     }
                 }
+                // Iterating particles randomly provides more variation in physics
                 points.Sort((x, y) => RNG.Next());
 
                 while (queue.Count > 0)
