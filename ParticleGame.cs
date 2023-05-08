@@ -137,18 +137,24 @@ namespace ParticleGame
                 }
 
                 int particles = 0;
+                int awakeParticles = 0;
                 HashSet<Point> queue = new(500 * 500);
                 List<Point> points = new(500 * 500);
                 for (int x = 0; x < 500; x++)
                 {
                     for (int y = 0; y < 500; y++)
                     {
-                        if (ParticleProcessors.Processors.ContainsKey(particleField[x, y].ParticleType))
+                        ParticleData data = particleField[x, y];
+                        if (ParticleProcessors.Processors.ContainsKey(data.ParticleType))
                         {
-                            Point position = new(x, y);
-                            _ = queue.Add(position);
-                            points.Add(position);
                             particles++;
+                            if (data.Awake)
+                            {
+                                Point position = new(x, y);
+                                _ = queue.Add(position);
+                                points.Add(position);
+                                awakeParticles++;
+                            }
                         }
                     }
                 }
@@ -177,8 +183,7 @@ namespace ParticleGame
                         // Destroy particle
                         particleField[x, y] = new ParticleData(ParticleTypes.Types.Air, position);
                     }
-                    // Only run if particle moved
-                    else if (newPos != position)
+                    else
                     {
                         // If not destroying particle, move to new location
                         particleField[x, y] = particleField[newPos.X, newPos.Y];
@@ -188,7 +193,8 @@ namespace ParticleGame
                             points.Add(position);
                         }
                         particleField[newPos.X, newPos.Y] = data;
-                        // Check adjacent particles for interactions
+                        bool allSameAdjacent = true;
+                        // Check particles for interactions and to see whether to fall asleep
                         foreach (Point adj in Adjacent)
                         {
                             Point otherPos = new(newPos.X + adj.X, newPos.Y + adj.Y);
@@ -197,20 +203,41 @@ namespace ParticleGame
                             {
                                 continue;
                             }
-                            ParticleTypes.Types otherType = particleField[otherPos.X, otherPos.Y].ParticleType;
-                            if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
+                            ParticleData otherData = particleField[otherPos.X, otherPos.Y];
+                            ParticleTypes.Types otherType = otherData.ParticleType;
+                            if (otherType != data.ParticleType)
                             {
-                                ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
+                                allSameAdjacent = false;
                             }
-                            else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
+                            // Only run if particle moved
+                            if (newPos != position)
                             {
-                                ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
+                                ParticleData originalAdjacentData = particleField[position.X + adj.X, position.Y + adj.Y];
+                                // Relative to this particle's original position
+                                // If moving away from a particle of the same type, make sure it is awake
+                                particleField[position.X + adj.X, position.Y + adj.Y].Awake = true;
+                                // Relative to this particle's original position
+                                // If moving toward a particle of the same type, make sure it is awake
+                                otherData.Awake = true;
+                                if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
+                                {
+                                    ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
+                                }
+                                else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
+                                {
+                                    ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
+                                }
+                                if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
+                                {
+                                    // Interaction deleted current particle
+                                    break;
+                                }
                             }
-                            if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
-                            {
-                                // Interaction deleted current particle
-                                break;
-                            }
+                        }
+                        if (allSameAdjacent)
+                        {
+                            // Particles surrounded by particles of the same type don't need to run physics
+                            data.Awake = false;
                         }
                         data.PreviousPosition = position;
                     }
@@ -235,7 +262,7 @@ namespace ParticleGame
                 _ = SDL.SDL_RenderCopy(screen, renderTexture, IntPtr.Zero, IntPtr.Zero);
                 SDL.SDL_RenderPresent(screen);
 
-                Console.Write($"\r{1 / frameTime:000.00} FPS  Particles: {particles:000000}");
+                Console.Write($"\r{1 / frameTime:000.00} FPS  Awake Particles: {awakeParticles:000000}  Total Particles: {particles:000000}");
                 Console.Out.Flush();
 
                 while ((float)performanceFrequency / (SDL.SDL_GetPerformanceCounter() - renderStart) > 60)
