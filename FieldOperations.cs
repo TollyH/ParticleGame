@@ -20,30 +20,24 @@ namespace ParticleGame
                 }
             }
             // Ensure that surrounding particles are awake
-            if (startY > 0)
+            for (int x = startX; x < endX; x++)
             {
-                for (int x = startX; x < endX; x++)
+                if (startY > 0)
                 {
                     field[x, startY - 1].Awake = true;
                 }
-            }
-            if (startY < 500 - 1)
-            {
-                for (int x = startX; x < endX; x++)
+                if (startY < 500 - 1)
                 {
                     field[x, startY + 1].Awake = true;
                 }
             }
-            if (startX > 0)
+            for (int y = startY; y < startY; y++)
             {
-                for (int y = startY; y < startY; y++)
+                if (startX > 0)
                 {
                     field[startX - 1, y].Awake = true;
                 }
-            }
-            if (startX < 500 - 1)
-            {
-                for (int y = startY; y < startY; y++)
+                if (startX < 500 - 1)
                 {
                     field[startX + 1, y].Awake = true;
                 }
