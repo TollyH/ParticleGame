@@ -40,7 +40,7 @@ namespace ParticleGame
                         foreach (int dx in sides)
                         {
                             int newX = newPos.X + dx;
-                            if (newX < 0 || newX >= 500)
+                            if (newX is < 0 or >= 500)
                             {
                                 // Destroy particle if edge reached
                                 newPos = new Point(-1, -1);
@@ -125,7 +125,7 @@ namespace ParticleGame
                 foreach (int dx in xOffsets)
                 {
                     int newX = position.X + dx;
-                    if (newX < 0 || newX >= 500)
+                    if (newX is < 0 or >= 500)
                     {
                         // Destroy particle if edge reached
                         newPos = new Point(-1, -1);
@@ -147,7 +147,7 @@ namespace ParticleGame
                 foreach (int dx in sides)
                 {
                     int newX = newPos.X + dx;
-                    if (newX < 0 || newX >= 500)
+                    if (newX is < 0 or >= 500)
                     {
                         // Destroy particle if edge reached
                         newPos = new Point(-1, -1);

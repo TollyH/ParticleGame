@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using static ParticleGame.ParticleProcessors;
 
 namespace ParticleGame
 {

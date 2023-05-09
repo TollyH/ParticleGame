@@ -6,7 +6,7 @@ namespace ParticleGame
 {
     public static class ParticleGame
     {
-        public static Random RNG = new();
+        public static readonly Random RNG = new();
 
         private static readonly Point[] Adjacent = new Point[4] { new(1, 0), new(-1, 0), new(0, 1), new(0, -1) };
 
@@ -192,7 +192,7 @@ namespace ParticleGame
                             _ = queue.Add(position);
                             points.Add(position);
                         }
-                        particleField[newPos.X, newPos.Y] = data;   
+                        particleField[newPos.X, newPos.Y] = data;
                         bool allSameAdjacent = true;
                         // Check particles for interactions and to see whether to fall asleep
                         foreach (Point adj in Adjacent)
