@@ -207,25 +207,26 @@ namespace ParticleGame
                                 {
                                     allSameAdjacent = false;
                                 }
+                                // Run particle interactions with adjacent particles if one exists
+                                if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
+                                {
+                                    ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
+                                }
+                                else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
+                                {
+                                    ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
+                                }
+                                if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
+                                {
+                                    // Interaction deleted current particle
+                                    break;
+                                }
                                 // Only run if particle moved
                                 if (newPos != position)
                                 {
                                     // Relative to this particle's original position
                                     // If moving toward a particle of the same type, make sure it is awake
                                     otherData.Awake = true;
-                                    if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
-                                    {
-                                        ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
-                                    }
-                                    else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
-                                    {
-                                        ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
-                                    }
-                                    if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
-                                    {
-                                        // Interaction deleted current particle
-                                        break;
-                                    }
                                 }
                             }
                             // Only run if particle moved
