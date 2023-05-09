@@ -76,12 +76,12 @@ namespace ParticleGame
                         if (evn.button.button == SDL.SDL_BUTTON_LEFT)
                         {
                             mouseLeftDown = true;
-                            FieldOperations.BrushDraw(particleField, mousePos, currentParticleType, brushSize);
+                            FieldOperations.BrushDraw(particleField, mousePos, currentParticleType, brushSize, ParticleTypes.Types.Air);
                         }
                         else if (evn.button.button == SDL.SDL_BUTTON_RIGHT)
                         {
                             mouseRightDown = true;
-                            FieldOperations.BrushDraw(particleField, mousePos, ParticleTypes.Types.Air, brushSize);
+                            FieldOperations.BrushDraw(particleField, mousePos, ParticleTypes.Types.Air, brushSize, currentParticleType);
                         }
                         else
                         {
@@ -111,11 +111,11 @@ namespace ParticleGame
                         Point mousePos = new(x, y);
                         if (mouseLeftDown)
                         {
-                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, currentParticleType, brushSize);
+                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, currentParticleType, brushSize, ParticleTypes.Types.Air);
                         }
                         else if (mouseRightDown)
                         {
-                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, ParticleTypes.Types.Air, brushSize);
+                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, ParticleTypes.Types.Air, brushSize, currentParticleType);
                         }
                         else
                         {

@@ -4,7 +4,8 @@ namespace ParticleGame
 {
     public static class FieldOperations
     {
-        public static void BrushDraw(ParticleField field, Point position, ParticleTypes.Types particleType, int brushSize = 1)
+        public static void BrushDraw(ParticleField field, Point position, ParticleTypes.Types particleType, int brushSize = 1,
+            ParticleTypes.Types? filter = null)
         {
             int offset = brushSize / 2;
             // Constrain to the boundaries of the field
@@ -16,7 +17,10 @@ namespace ParticleGame
             {
                 for (int y = startY; y < endY; y++)
                 {
-                    field[x, y] = new ParticleData(particleType, new Point(x, y));
+                    if (filter is null || field[x, y].ParticleType == filter)
+                    {
+                        field[x, y] = new ParticleData(particleType, new Point(x, y));
+                    }
                 }
             }
             // Ensure that surrounding particles are awake
@@ -45,7 +49,7 @@ namespace ParticleGame
         }
 
         public static void BrushLine(ParticleField field, Point startPos, Point endPos, ParticleTypes.Types particleType,
-            int brushSize = 1)
+            int brushSize = 1, ParticleTypes.Types? filter = null)
         {
             // Bresenham's line algorithm
             int x1 = startPos.X;
@@ -59,7 +63,7 @@ namespace ParticleGame
             int err = dx - dy;
             while (true)
             {
-                BrushDraw(field, new Point(x1, y1), particleType, brushSize);
+                BrushDraw(field, new Point(x1, y1), particleType, brushSize, filter);
                 if (x1 == x2 && y1 == y2)
                 {
                     // End reached
