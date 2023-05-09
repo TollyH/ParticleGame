@@ -243,7 +243,7 @@ namespace ParticleGame
                                 }
                             }
                         }
-                        if (allSameAdjacent)
+                        if (allSameAdjacent && !ParticleTypes.CannotSleep.Contains(data.ParticleType))
                         {
                             // Particles surrounded by particles of the same type don't need to run physics
                             data.Awake = false;

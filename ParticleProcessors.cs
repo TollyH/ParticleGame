@@ -31,38 +31,47 @@ namespace ParticleGame
                     newPos = new Point(-1, -1);
                     break;
                 }
-                else if (field[newPos.X, newPos.Y + 1].ParticleType == ParticleTypes.Types.Air)
-                {
-                    // Fall down if possible
-                    newPos = new Point(newPos.X, newPos.Y + 1);
-                }
                 else
                 {
-                    for (int j = 0; j < ParticleGame.RNG.Next(3, 6); j++)
+                    ParticleTypes.Types newType = field[newPos.X, newPos.Y + 1].ParticleType;
+                    if (newType != data.ParticleType && ParticleTypes.Fluids.Contains(newType))
                     {
-                        if (field[newPos.X, newPos.Y + 1].ParticleType == ParticleTypes.Types.Air)
+                        // Fall down if possible
+                        newPos = new Point(newPos.X, newPos.Y + 1);
+                    }
+                    else
+                    {
+                        for (int j = 0; j < ParticleGame.RNG.Next(3, 6); j++)
                         {
-                            break;
-                        }
-                        // Try to move to either side, with a higher chance of moving in the same direction
-                        int lastX = position.X - data.PreviousPosition.X;
-                        if (Math.Abs(lastX) != 1)
-                        {
-                            lastX = 1;
-                        }
-                        int[] sides = ParticleGame.RNG.NextDouble() <= 0.75 ? leftRight : leftRightInverse;
-                        foreach (int dx in sides)
-                        {
-                            int newX = newPos.X + (dx * lastX);
-                            if (newX is < 0 or >= 500)
+                            if (newType != data.ParticleType && ParticleTypes.Fluids.Contains(newType))
                             {
-                                // Destroy particle if edge reached
-                                newPos = new Point(-1, -1);
                                 break;
                             }
-                            if (field[newX, newPos.Y].ParticleType == ParticleTypes.Types.Air)
+                            // Try to move to either side, with a higher chance of moving in the same direction
+                            int lastX = position.X - data.PreviousPosition.X;
+                            if (Math.Abs(lastX) != 1)
                             {
-                                newPos = new Point(newX, newPos.Y);
+                                lastX = 1;
+                            }
+                            int[] sides = ParticleGame.RNG.NextDouble() <= 0.75 ? leftRight : leftRightInverse;
+                            foreach (int dx in sides)
+                            {
+                                int newX = newPos.X + (dx * lastX);
+                                if (newX is < 0 or >= 500)
+                                {
+                                    // Destroy particle if edge reached
+                                    newPos = new Point(-1, -1);
+                                    break;
+                                }
+                                ParticleTypes.Types sideType = field[newX, newPos.Y].ParticleType;
+                                if (sideType != data.ParticleType && ParticleTypes.Fluids.Contains(sideType))
+                                {
+                                    newPos = new Point(newX, newPos.Y);
+                                    break;
+                                }
+                            }
+                            if (newPos == new Point(-1, -1))
+                            {
                                 break;
                             }
                         }
@@ -70,10 +79,6 @@ namespace ParticleGame
                         {
                             break;
                         }
-                    }
-                    if (newPos == new Point(-1, -1))
-                    {
-                        break;
                     }
                 }
             }
@@ -88,29 +93,34 @@ namespace ParticleGame
                 // Destroy particle if bottom reached
                 newPos = new Point(-1, -1);
             }
-            else if (field[newPos.X, newPos.Y + 1].ParticleType is ParticleTypes.Types.Air or ParticleTypes.Types.Water)
-            {
-                // Fall down if possible
-                newPos = new Point(newPos.X, newPos.Y + 1);
-            }
             else
             {
-                // Try to move to either diagonal downward, with an equal chance of either direction
-                int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? leftRight : leftRightInverse;
-                foreach (int dx in sides)
+                ParticleTypes.Types newType = field[newPos.X, newPos.Y + 1].ParticleType;
+                if (newType != data.ParticleType && ParticleTypes.Fluids.Contains(newType))
                 {
-                    int newX = newPos.X + dx;
-                    int newY = newPos.Y + 1;
-                    if (newX < 0 || newX >= 500 || newY >= 500)
+                    // Fall down if possible
+                    newPos = new Point(newPos.X, newPos.Y + 1);
+                }
+                else
+                {
+                    // Try to move to either diagonal downward, with an equal chance of either direction
+                    int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? leftRight : leftRightInverse;
+                    foreach (int dx in sides)
                     {
-                        // Destroy particle if edge reached
-                        newPos = new Point(-1, -1);
-                        break;
-                    }
-                    if (field[newX, newY].ParticleType == ParticleTypes.Types.Air)
-                    {
-                        newPos = new Point(newX, newY);
-                        break;
+                        int newX = newPos.X + dx;
+                        int newY = newPos.Y + 1;
+                        if (newX < 0 || newX >= 500 || newY >= 500)
+                        {
+                            // Destroy particle if edge reached
+                            newPos = new Point(-1, -1);
+                            break;
+                        }
+                        ParticleTypes.Types sideType = field[newX, newY].ParticleType;
+                        if (sideType != data.ParticleType && ParticleTypes.Fluids.Contains(sideType))
+                        {
+                            newPos = new Point(newX, newY);
+                            break;
+                        }
                     }
                 }
             }
@@ -145,7 +155,8 @@ namespace ParticleGame
                         break;
                     }
                     Point tryPos = new(newX, position.Y - 1);
-                    if (field[tryPos.X, tryPos.Y].ParticleType is not ParticleTypes.Types.Steam and not ParticleTypes.Types.Block)
+                    ParticleTypes.Types tryType = field[tryPos.X, tryPos.Y].ParticleType;
+                    if (tryType != data.ParticleType && ParticleTypes.Fluids.Contains(tryType))
                     {
                         newPos = tryPos;
                         break;
@@ -167,7 +178,8 @@ namespace ParticleGame
                         break;
                     }
                     Point tryPos = new(newX, position.Y);
-                    if (field[tryPos.X, tryPos.Y].ParticleType is not ParticleTypes.Types.Steam and not ParticleTypes.Types.Block)
+                    ParticleTypes.Types tryType = field[tryPos.X, tryPos.Y].ParticleType;
+                    if (tryType != data.ParticleType && ParticleTypes.Fluids.Contains(tryType))
                     {
                         newPos = tryPos;
                         break;

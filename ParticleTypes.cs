@@ -32,5 +32,22 @@
             {Types.Steam, (192, 192, 192)},
             {Types.Magma, (119, 0, 0)}
         };
+
+        /// <summary>
+        /// Contains particle types which will not automatically have their <see cref="ParticleData.Awake"/> attribute set to false.
+        /// Add a particle type to this set if even non-moving particles of the type need to run their processor.
+        /// </summary>
+        public static readonly HashSet<Types> CannotSleep = new()
+        {
+            Types.Steam
+        };
+
+        /// <summary>
+        /// Contains particle types which should, in most circumstances, not prevent other particles from moving through them.
+        /// </summary>
+        public static readonly HashSet<Types> Fluids = new()
+        {
+            Types.Air, Types.Water, Types.Lava, Types.Steam
+        };
     }
 }
