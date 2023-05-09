@@ -6,6 +6,20 @@ namespace ParticleGame
     {
         public delegate Point Processor(Point position, ParticleField field, ParticleData data);
 
+        // These are definitions of possible direction offsets that need to be randomised by processors.
+        // Having them pre-defined prevents unnecessary object allocations when the processors are executed.
+        private static readonly int[] leftRight = new int[] { 1, -1 };
+        private static readonly int[] leftRightInverse = new int[] { -1, 1 };
+        private static readonly int[][] leftCenterRightCombos = new int[][]
+        {
+            new int[] { -1, 0, 1 },
+            new int[] { -1, 1, 0 },
+            new int[] { 0, -1, 1 },
+            new int[] { 0, 1, -1 },
+            new int[] { 1, -1, 0 },
+            new int[] { 1, 0, -1 }
+        };
+
         public static Point ProcessorWater(Point position, ParticleField field, ParticleData data)
         {
             Point newPos = position;
@@ -36,10 +50,10 @@ namespace ParticleGame
                         {
                             lastX = 1;
                         }
-                        int[] sides = ParticleGame.RNG.NextDouble() <= 0.75 ? new int[] { lastX, -lastX } : new int[] { -lastX, lastX };
+                        int[] sides = ParticleGame.RNG.NextDouble() <= 0.75 ? leftRight : leftRightInverse;
                         foreach (int dx in sides)
                         {
-                            int newX = newPos.X + dx;
+                            int newX = newPos.X + (dx * lastX);
                             if (newX is < 0 or >= 500)
                             {
                                 // Destroy particle if edge reached
@@ -82,7 +96,7 @@ namespace ParticleGame
             else
             {
                 // Try to move to either diagonal downward, with an equal chance of either direction
-                int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? new int[] { 1, -1 } : new int[] { -1, 1 };
+                int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? leftRight : leftRightInverse;
                 foreach (int dx in sides)
                 {
                     int newX = newPos.X + dx;
@@ -120,8 +134,7 @@ namespace ParticleGame
             else
             {
                 // Try and move in random upwards direction
-                int[] xOffsets = new int[] { -1, 0, 1 };
-                xOffsets = xOffsets.OrderBy(x => ParticleGame.RNG.Next()).ToArray();
+                int[] xOffsets = leftCenterRightCombos[ParticleGame.RNG.Next(leftCenterRightCombos.Length)];
                 foreach (int dx in xOffsets)
                 {
                     int newX = position.X + dx;
@@ -143,7 +156,7 @@ namespace ParticleGame
             if (newPos == position)
             {
                 // Try and move to a random side
-                int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? new int[] { 1, -1 } : new int[] { 1, -1 };
+                int[] sides = ParticleGame.RNG.NextDouble() <= 0.5 ? leftRight : leftRightInverse;
                 foreach (int dx in sides)
                 {
                     int newX = newPos.X + dx;
