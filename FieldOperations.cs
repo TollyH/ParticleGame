@@ -10,14 +10,42 @@ namespace ParticleGame
             // Constrain to the boundaries of the field
             int startX = Math.Max(0, position.X - offset);
             int endX = Math.Min(500, position.X + offset);
+            int startY = Math.Max(0, position.Y - offset);
+            int endY = Math.Min(500, position.Y + offset);
             for (int x = startX; x < endX; x++)
             {
-                // Constrain to the boundaries of the field
-                int startY = Math.Max(0, position.Y - offset);
-                int endY = Math.Min(500, position.Y + offset);
                 for (int y = startY; y < endY; y++)
                 {
                     field[x, y] = new ParticleData(particleType, new Point(x, y));
+                }
+            }
+            // Ensure that surrounding particles are awake
+            if (startY > 0)
+            {
+                for (int x = startX; x < endX; x++)
+                {
+                    field[x, startY - 1].Awake = true;
+                }
+            }
+            if (startY < 500 - 1)
+            {
+                for (int x = startX; x < endX; x++)
+                {
+                    field[x, startY + 1].Awake = true;
+                }
+            }
+            if (startX > 0)
+            {
+                for (int y = startY; y < startY; y++)
+                {
+                    field[startX - 1, y].Awake = true;
+                }
+            }
+            if (startX < 500 - 1)
+            {
+                for (int y = startY; y < startY; y++)
+                {
+                    field[startX + 1, y].Awake = true;
                 }
             }
         }
