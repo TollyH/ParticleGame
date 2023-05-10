@@ -144,14 +144,14 @@ namespace ParticleGame
                         {
                             case SDL.SDL_Keycode.SDLK_LEFTBRACKET:
                                 currentParticleIndex--;
-                                if (currentParticleIndex == 0)
+                                if (currentParticleIndex <= 0)
                                 {
                                     currentParticleIndex = ParticleTypes.ParticleTypeArray.Length - 1;
                                 }
                                 break;
                             case SDL.SDL_Keycode.SDLK_RIGHTBRACKET:
                                 currentParticleIndex++;
-                                if (currentParticleIndex == ParticleTypes.ParticleTypeArray.Length)
+                                if (currentParticleIndex >= ParticleTypes.ParticleTypeArray.Length)
                                 {
                                     currentParticleIndex = 1;
                                 }
@@ -161,6 +161,16 @@ namespace ParticleGame
                                 break;
                             case SDL.SDL_Keycode.SDLK_SPACE:
                                 physics = !physics;
+                                break;
+                            case SDL.SDL_Keycode.SDLK_EQUALS:
+                                brushSize++;
+                                break;
+                            case SDL.SDL_Keycode.SDLK_MINUS:
+                                brushSize--;
+                                if (brushSize < 1)
+                                {
+                                    brushSize = 1;
+                                }
                                 break;
                             default:
                                 break;
@@ -309,6 +319,11 @@ namespace ParticleGame
                     ParticleTypes.FriendlyNames[currentParticleType], ParticleTypes.Colors[currentParticleType]);
                 IntPtr selectedTypeText = SDL.SDL_CreateTextureFromSurface(screen, selectedTypeTextSfc);
                 _ = DrawTextureAtPosition(screen, selectedTypeText, new Point(10, 10));
+
+                IntPtr brushSizeTextSfc = SDL_ttf.TTF_RenderUTF8_Blended(fontSmall,
+                    $"Brush Size: {brushSize}", Colors.White);
+                IntPtr brushSizeText = SDL.SDL_CreateTextureFromSurface(screen, brushSizeTextSfc);
+                _ = DrawTextureAtPosition(screen, brushSizeText, new Point(500 - 130, 10));
 
                 IntPtr blockReplacementTextSfc = SDL_ttf.TTF_RenderUTF8_Blended(fontSmall,
                     $"Block Replacement/Power Erase: {(blockReplacement ? "On" : "Off")}", Colors.White);
