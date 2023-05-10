@@ -27,7 +27,8 @@ namespace ParticleGame
             _ = SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
             _ = SDL_ttf.TTF_Init();
 
-            IntPtr font = SDL_ttf.TTF_OpenFont(@"C:\Windows\Fonts\tahomabd.ttf", 24);
+            IntPtr fontLarge = SDL_ttf.TTF_OpenFont(@"C:\Windows\Fonts\tahomabd.ttf", 22);
+            IntPtr fontSmall = SDL_ttf.TTF_OpenFont(@"C:\Windows\Fonts\tahomabd.ttf", 16);
 
             _ = SDL.SDL_SetHintWithPriority(SDL.SDL_HINT_RENDER_DRIVER, "direct3d11", SDL.SDL_HintPriority.SDL_HINT_OVERRIDE);
             IntPtr window = SDL.SDL_CreateWindow("Particle Game", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED, 500, 500, 0);
@@ -60,6 +61,8 @@ namespace ParticleGame
             bool mouseLeftDown = false;
             bool mouseRightDown = false;
 
+            bool blockReplacement = false;
+
             // Game loop
             while (!quit)
             {
@@ -82,12 +85,14 @@ namespace ParticleGame
                         if (evn.button.button == SDL.SDL_BUTTON_LEFT)
                         {
                             mouseLeftDown = true;
-                            FieldOperations.BrushDraw(particleField, mousePos, currentParticleType, brushSize, ParticleTypes.Types.Air);
+                            FieldOperations.BrushDraw(particleField, mousePos, currentParticleType, brushSize,
+                                blockReplacement ? null : ParticleTypes.Types.Air);
                         }
                         else if (evn.button.button == SDL.SDL_BUTTON_RIGHT)
                         {
                             mouseRightDown = true;
-                            FieldOperations.BrushDraw(particleField, mousePos, ParticleTypes.Types.Air, brushSize, currentParticleType);
+                            FieldOperations.BrushDraw(particleField, mousePos, ParticleTypes.Types.Air, brushSize,
+                                blockReplacement ? null : currentParticleType);
                         }
                         else
                         {
@@ -117,11 +122,13 @@ namespace ParticleGame
                         Point mousePos = new(x, y);
                         if (mouseLeftDown)
                         {
-                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, currentParticleType, brushSize, ParticleTypes.Types.Air);
+                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, currentParticleType, brushSize,
+                                blockReplacement ? null : ParticleTypes.Types.Air);
                         }
                         else if (mouseRightDown)
                         {
-                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, ParticleTypes.Types.Air, brushSize, currentParticleType);
+                            FieldOperations.BrushLine(particleField, previousMousePos, mousePos, ParticleTypes.Types.Air, brushSize,
+                                blockReplacement ? null : currentParticleType);
                         }
                         else
                         {
@@ -132,21 +139,27 @@ namespace ParticleGame
                     else if (evn.type == SDL.SDL_EventType.SDL_KEYDOWN)
                     {
                         // Subtracting 1 from array length and adding 1 to mod results prevents 0 (Air) from being selected
-                        if (evn.key.keysym.sym == SDL.SDL_Keycode.SDLK_LEFTBRACKET)
+                        switch (evn.key.keysym.sym)
                         {
-                            currentParticleIndex--;
-                            if (currentParticleIndex == 0)
-                            {
-                                currentParticleIndex = ParticleTypes.ParticleTypeArray.Length - 1;
-                            }
-                        }
-                        else if (evn.key.keysym.sym == SDL.SDL_Keycode.SDLK_RIGHTBRACKET)
-                        {
-                            currentParticleIndex++;
-                            if (currentParticleIndex == ParticleTypes.ParticleTypeArray.Length)
-                            {
-                                currentParticleIndex = 1;
-                            }
+                            case SDL.SDL_Keycode.SDLK_LEFTBRACKET:
+                                currentParticleIndex--;
+                                if (currentParticleIndex == 0)
+                                {
+                                    currentParticleIndex = ParticleTypes.ParticleTypeArray.Length - 1;
+                                }
+                                break;
+                            case SDL.SDL_Keycode.SDLK_RIGHTBRACKET:
+                                currentParticleIndex++;
+                                if (currentParticleIndex == ParticleTypes.ParticleTypeArray.Length)
+                                {
+                                    currentParticleIndex = 1;
+                                }
+                                break;
+                            case SDL.SDL_Keycode.SDLK_TAB:
+                                blockReplacement = !blockReplacement;
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -285,10 +298,15 @@ namespace ParticleGame
                 SDL.SDL_UnlockTexture(renderTexture);
                 _ = SDL.SDL_RenderCopy(screen, renderTexture, IntPtr.Zero, IntPtr.Zero);
 
-                IntPtr selectedTypeTextSfc = SDL_ttf.TTF_RenderUTF8_Blended(font,
+                IntPtr selectedTypeTextSfc = SDL_ttf.TTF_RenderUTF8_Blended(fontLarge,
                     ParticleTypes.FriendlyNames[currentParticleType], ParticleTypes.Colors[currentParticleType]);
                 IntPtr selectedTypeText = SDL.SDL_CreateTextureFromSurface(screen, selectedTypeTextSfc);
                 _ = DrawTextureAtPosition(screen, selectedTypeText, new Point(10, 10));
+
+                IntPtr blockReplacementTextSfc = SDL_ttf.TTF_RenderUTF8_Blended(fontSmall,
+                    $"Block Replacement/Power Erase: {(blockReplacement ? "On" : "Off")}", Colors.White);
+                IntPtr blockReplacementText = SDL.SDL_CreateTextureFromSurface(screen, blockReplacementTextSfc);
+                _ = DrawTextureAtPosition(screen, blockReplacementText, new Point(10, 500 - 35));
 
                 SDL.SDL_RenderPresent(screen);
 
@@ -304,7 +322,8 @@ namespace ParticleGame
                 renderEnd = SDL.SDL_GetPerformanceCounter();
             }
 
-            SDL_ttf.TTF_CloseFont(font);
+            SDL_ttf.TTF_CloseFont(fontLarge);
+            SDL_ttf.TTF_CloseFont(fontSmall);
             Marshal.FreeHGlobal(pixels);
             SDL.SDL_DestroyTexture(renderTexture);
             SDL.SDL_DestroyRenderer(screen);
