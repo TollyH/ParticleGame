@@ -1,14 +1,16 @@
-﻿namespace ParticleGame
+﻿using SDL2;
+
+namespace ParticleGame
 {
     public class ParticleField
     {
         public ParticleData[,] ParticleData { get; private set; }
-        public (byte, byte, byte)[,] ParticleColors { get; private set; }
+        public SDL.SDL_Color[,] ParticleColors { get; private set; }
 
         public ParticleField(int xSize, int ySize)
         {
             ParticleData = new ParticleData[xSize, ySize];
-            ParticleColors = new (byte, byte, byte)[xSize, ySize];
+            ParticleColors = new SDL.SDL_Color[xSize, ySize];
         }
 
         public ParticleData this[int x, int y]

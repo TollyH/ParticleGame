@@ -1,4 +1,6 @@
-﻿namespace ParticleGame
+﻿using SDL2;
+
+namespace ParticleGame
 {
     public static class ParticleTypes
     {
@@ -21,16 +23,16 @@
             Types.Steam, Types.Magma
         };
 
-        public static readonly Dictionary<Types, (byte, byte, byte)> Colors = new()
+        public static readonly Dictionary<Types, SDL.SDL_Color> Colors = new()
         {
-            {Types.Air, (0, 0, 0)},
-            {Types.Block, (127, 127, 127)},
-            {Types.Water, (0, 21, 255)},
-            {Types.Sand, (252, 193, 53)},
-            {Types.RedSand, (212, 115, 55)},
-            {Types.Lava, (255, 32, 32)},
-            {Types.Steam, (192, 192, 192)},
-            {Types.Magma, (119, 0, 0)}
+            { Types.Air, new() { r = 0, g = 0, b = 0, a = 255 } },
+            { Types.Block, new() { r = 127, g = 127, b = 127, a = 255 } },
+            { Types.Water, new() { r = 0, g = 21, b = 255, a = 255 } },
+            { Types.Sand, new() { r = 252, g = 193, b = 53, a = 255 } },
+            { Types.RedSand, new() { r = 212, g = 115, b = 55, a = 255 } },
+            { Types.Lava, new() { r = 255, g = 32, b = 32, a = 255 } },
+            { Types.Steam, new() { r = 192, g = 192, b = 192, a = 255 } },
+            { Types.Magma, new() { r = 119, g = 0, b = 0, a = 255 } }
         };
 
         /// <summary>

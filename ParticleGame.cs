@@ -268,11 +268,11 @@ namespace ParticleGame
                     for (int y = 0; y < 500; y++)
                     {
                         int offset = (pitch * y) + (x * 4);
-                        (byte, byte, byte) color = particleField.ParticleColors[x, y];
-                        Marshal.WriteByte(pixels + offset, color.Item3);
-                        Marshal.WriteByte(pixels + offset + 1, color.Item2);
-                        Marshal.WriteByte(pixels + offset + 2, color.Item1);
-                        Marshal.WriteByte(pixels + offset + 3, 255);
+                        SDL.SDL_Color color = particleField.ParticleColors[x, y];
+                        Marshal.WriteByte(pixels + offset, color.b);
+                        Marshal.WriteByte(pixels + offset + 1, color.g);
+                        Marshal.WriteByte(pixels + offset + 2, color.r);
+                        Marshal.WriteByte(pixels + offset + 3, color.a);
                     }
                 }
 
