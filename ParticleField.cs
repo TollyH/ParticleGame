@@ -2,7 +2,7 @@
 
 namespace ParticleGame
 {
-    public class ParticleField
+    public class ParticleField : System.Collections.IEnumerable
     {
         public ParticleData[,] ParticleData { get; private set; }
         public SDL.SDL_Color[,] ParticleColors { get; private set; }
@@ -31,6 +31,11 @@ namespace ParticleGame
         public void UpdateColor(int x, int y)
         {
             ParticleColors[x, y] = ParticleTypes.Colors[ParticleData[x, y].ParticleType];
+        }
+
+        public System.Collections.IEnumerator GetEnumerator()
+        {
+            return ParticleData.GetEnumerator();
         }
     }
 }

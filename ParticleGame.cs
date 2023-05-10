@@ -165,6 +165,12 @@ namespace ParticleGame
                             case SDL.SDL_Keycode.SDLK_r:
                                 FieldOperations.InitialiseField(particleField);
                                 break;
+                            case SDL.SDL_Keycode.SDLK_a:
+                                foreach (ParticleData data in particleField)
+                                {
+                                    data.Awake = true;
+                                }
+                                break;
                             default:
                                 break;
                         }
