@@ -8,7 +8,7 @@ namespace ParticleGame
 
         public static void LavaWaterInteraction(Point pos1, Point pos2, ParticleField field)
         {
-            field[pos1.X, pos1.Y].ParticleType = ParticleTypes.Types.Air;
+            field[pos1.X, pos1.Y].ParticleType = ParticleTypes.Types.Ash;
             field[pos2.X, pos2.Y].ParticleType = ParticleTypes.Types.Steam;
             field.UpdateColor(pos1.X, pos1.Y);
             field.UpdateColor(pos2.X, pos2.Y);

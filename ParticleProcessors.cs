@@ -195,7 +195,8 @@ namespace ParticleGame
             { ParticleTypes.Types.Sand, new(ProcessorSand) },
             { ParticleTypes.Types.RedSand, new(ProcessorSand) },
             { ParticleTypes.Types.Lava, new(ProcessorWater) },
-            { ParticleTypes.Types.Steam, new(ProcessorSteam) }
+            { ParticleTypes.Types.Steam, new(ProcessorSteam) },
+            { ParticleTypes.Types.Ash, new(ProcessorSand) },
         };
     }
 }

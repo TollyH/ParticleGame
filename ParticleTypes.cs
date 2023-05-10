@@ -13,14 +13,15 @@ namespace ParticleGame
             RedSand,
             Lava,
             Steam,
-            Magma
+            Magma,
+            Ash
         }
 
         public static readonly Types[] ParticleTypeArray = new Types[]
         {
             Types.Air, Types.Block, Types.Sand,
             Types.RedSand, Types.Water, Types.Lava,
-            Types.Steam, Types.Magma
+            Types.Steam, Types.Magma, Types.Ash
         };
 
         public static readonly Dictionary<Types, SDL.SDL_Color> Colors = new()
@@ -31,8 +32,9 @@ namespace ParticleGame
             { Types.Sand, new() { r = 252, g = 193, b = 53, a = 255 } },
             { Types.RedSand, new() { r = 212, g = 115, b = 55, a = 255 } },
             { Types.Lava, new() { r = 255, g = 32, b = 32, a = 255 } },
-            { Types.Steam, new() { r = 192, g = 192, b = 192, a = 255 } },
-            { Types.Magma, new() { r = 119, g = 0, b = 0, a = 255 } }
+            { Types.Steam, new() { r = 240, g = 240, b = 240, a = 255 } },
+            { Types.Magma, new() { r = 119, g = 0, b = 0, a = 255 } },
+            { Types.Ash, new() { r = 176, g = 176, b = 176, a = 255 } },
         };
 
         /// <summary>
@@ -62,6 +64,7 @@ namespace ParticleGame
             { Types.Lava, "Lava" },
             { Types.Steam, "Steam" },
             { Types.Magma, "Magma Block" },
+            { Types.Ash, "Ash" }
         };
     }
 }
