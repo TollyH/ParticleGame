@@ -19,7 +19,7 @@ namespace ParticleGame
 
         public static readonly Types[] ParticleTypeArray = new Types[]
         {
-            Types.Air, Types.Block, Types.Sand,
+            Types.Block, Types.Sand,
             Types.RedSand, Types.Water, Types.Lava,
             Types.Steam, Types.Magma, Types.Ash
         };

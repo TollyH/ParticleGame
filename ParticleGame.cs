@@ -12,6 +12,12 @@ namespace ParticleGame
 
         private static readonly ulong performanceFrequency = SDL.SDL_GetPerformanceFrequency();
 
+        public static int Mod(int a, int b)
+        {
+            // Needed because C#'s % operator finds the remainder, not modulo
+            return ((a % b) + b) % b;
+        }
+
         /// <summary>
         /// Calls SDL_RenderCopy with a calculated width and height for the provided texture.
         /// </summary>
@@ -40,7 +46,7 @@ namespace ParticleGame
             ParticleField particleField = new(500, 500);
             FieldOperations.InitialiseField(particleField);
 
-            int currentParticleIndex = 1;
+            int currentParticleIndex = 0;
             int brushSize = 4;
 
             Point previousMousePos = new(-1, -1);
@@ -132,22 +138,13 @@ namespace ParticleGame
                     }
                     else if (evn.type == SDL.SDL_EventType.SDL_KEYDOWN)
                     {
-                        // Subtracting 1 from array length and adding 1 to mod results prevents 0 (Air) from being selected
                         switch (evn.key.keysym.sym)
                         {
                             case SDL.SDL_Keycode.SDLK_LEFTBRACKET:
-                                currentParticleIndex--;
-                                if (currentParticleIndex <= 0)
-                                {
-                                    currentParticleIndex = ParticleTypes.ParticleTypeArray.Length - 1;
-                                }
+                                currentParticleIndex = Mod(currentParticleIndex - 1, ParticleTypes.ParticleTypeArray.Length);
                                 break;
                             case SDL.SDL_Keycode.SDLK_RIGHTBRACKET:
-                                currentParticleIndex++;
-                                if (currentParticleIndex >= ParticleTypes.ParticleTypeArray.Length)
-                                {
-                                    currentParticleIndex = 1;
-                                }
+                                currentParticleIndex = Mod(currentParticleIndex + 1, ParticleTypes.ParticleTypeArray.Length);
                                 break;
                             case SDL.SDL_Keycode.SDLK_TAB:
                                 blockReplacement = !blockReplacement;
