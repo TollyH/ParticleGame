@@ -62,6 +62,7 @@ namespace ParticleGame
             bool mouseRightDown = false;
 
             bool blockReplacement = false;
+            bool physics = true;
 
             // Game loop
             while (!quit)
@@ -158,6 +159,9 @@ namespace ParticleGame
                             case SDL.SDL_Keycode.SDLK_TAB:
                                 blockReplacement = !blockReplacement;
                                 break;
+                            case SDL.SDL_Keycode.SDLK_SPACE:
+                                physics = !physics;
+                                break;
                             default:
                                 break;
                         }
@@ -166,119 +170,122 @@ namespace ParticleGame
 
                 int particles = 0;
                 int awakeParticles = 0;
-                HashSet<Point> queue = new(500 * 500);
-                List<Point> points = new(500 * 500);
-                for (int x = 0; x < 500; x++)
+                if (physics)
                 {
-                    for (int y = 0; y < 500; y++)
+                    HashSet<Point> queue = new(500 * 500);
+                    List<Point> points = new(500 * 500);
+                    for (int x = 0; x < 500; x++)
                     {
-                        ParticleData data = particleField[x, y];
-                        if (data.ParticleType != ParticleTypes.Types.Air && ParticleProcessors.Processors.ContainsKey(data.ParticleType))
+                        for (int y = 0; y < 500; y++)
                         {
-                            particles++;
-                            if (data.Awake)
+                            ParticleData data = particleField[x, y];
+                            if (data.ParticleType != ParticleTypes.Types.Air && ParticleProcessors.Processors.ContainsKey(data.ParticleType))
                             {
-                                Point position = new(x, y);
-                                _ = queue.Add(position);
-                                points.Add(position);
-                                awakeParticles++;
+                                particles++;
+                                if (data.Awake)
+                                {
+                                    Point position = new(x, y);
+                                    _ = queue.Add(position);
+                                    points.Add(position);
+                                    awakeParticles++;
+                                }
                             }
                         }
                     }
-                }
-                // Iterating particles randomly provides more variation in physics
-                points.Sort((x, y) => RNG.Next());
+                    // Iterating particles randomly provides more variation in physics
+                    points.Sort((x, y) => RNG.Next());
 
-                while (queue.Count > 0)
-                {
-                    Point position = points[^1];
-                    points.RemoveAt(points.Count - 1);
-                    if (!queue.Remove(position))
+                    while (queue.Count > 0)
                     {
-                        continue;
-                    }
-                    int x = position.X;
-                    int y = position.Y;
-                    ParticleData data = particleField[x, y];
-                    if (data.ParticleType == ParticleTypes.Types.Air)
-                    {
-                        continue;
-                    }
-
-                    Point newPos = ParticleProcessors.Processors[data.ParticleType](position, particleField, data);
-                    if (newPos == new Point(-1, -1))
-                    {
-                        // Destroy particle
-                        particleField[x, y] = new ParticleData(ParticleTypes.Types.Air, position);
-                    }
-                    else
-                    {
-                        // If not destroying particle, move to new location
-                        particleField[x, y] = particleField[newPos.X, newPos.Y];
-                        if (queue.Remove(newPos))
+                        Point position = points[^1];
+                        points.RemoveAt(points.Count - 1);
+                        if (!queue.Remove(position))
                         {
-                            _ = queue.Add(position);
-                            points.Add(position);
+                            continue;
                         }
-                        particleField[newPos.X, newPos.Y] = data;
-                        bool allSameAdjacent = true;
-                        // Check particles for interactions and to see whether to fall asleep
-                        foreach (Point adj in Adjacent)
+                        int x = position.X;
+                        int y = position.Y;
+                        ParticleData data = particleField[x, y];
+                        if (data.ParticleType == ParticleTypes.Types.Air)
                         {
-                            Point otherPos = new(newPos.X + adj.X, newPos.Y + adj.Y);
-                            if (otherPos.X >= 0 && otherPos.Y >= 0
-                                && otherPos.X < 500 && otherPos.Y < 500)
+                            continue;
+                        }
+
+                        Point newPos = ParticleProcessors.Processors[data.ParticleType](position, particleField, data);
+                        if (newPos == new Point(-1, -1))
+                        {
+                            // Destroy particle
+                            particleField[x, y] = new ParticleData(ParticleTypes.Types.Air, position);
+                        }
+                        else
+                        {
+                            // If not destroying particle, move to new location
+                            particleField[x, y] = particleField[newPos.X, newPos.Y];
+                            if (queue.Remove(newPos))
                             {
-                                ParticleData otherData = particleField[otherPos.X, otherPos.Y];
-                                ParticleTypes.Types otherType = otherData.ParticleType;
-                                if (otherType != data.ParticleType)
+                                _ = queue.Add(position);
+                                points.Add(position);
+                            }
+                            particleField[newPos.X, newPos.Y] = data;
+                            bool allSameAdjacent = true;
+                            // Check particles for interactions and to see whether to fall asleep
+                            foreach (Point adj in Adjacent)
+                            {
+                                Point otherPos = new(newPos.X + adj.X, newPos.Y + adj.Y);
+                                if (otherPos.X >= 0 && otherPos.Y >= 0
+                                    && otherPos.X < 500 && otherPos.Y < 500)
                                 {
-                                    allSameAdjacent = false;
-                                }
-                                // Run particle interactions with adjacent particles if one exists
-                                if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
-                                {
-                                    ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
-                                }
-                                else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
-                                {
-                                    ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
-                                }
-                                if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
-                                {
-                                    // Interaction deleted current particle
-                                    break;
+                                    ParticleData otherData = particleField[otherPos.X, otherPos.Y];
+                                    ParticleTypes.Types otherType = otherData.ParticleType;
+                                    if (otherType != data.ParticleType)
+                                    {
+                                        allSameAdjacent = false;
+                                    }
+                                    // Run particle interactions with adjacent particles if one exists
+                                    if (ParticleInteractions.Interactions.ContainsKey((data.ParticleType, otherType)))
+                                    {
+                                        ParticleInteractions.Interactions[(data.ParticleType, otherType)](newPos, otherPos, particleField);
+                                    }
+                                    else if (ParticleInteractions.Interactions.ContainsKey((otherType, data.ParticleType)))
+                                    {
+                                        ParticleInteractions.Interactions[(otherType, data.ParticleType)](otherPos, newPos, particleField);
+                                    }
+                                    if (particleField[newPos.X, newPos.Y].ParticleType == ParticleTypes.Types.Air)
+                                    {
+                                        // Interaction deleted current particle
+                                        break;
+                                    }
+                                    // Only run if particle moved
+                                    if (newPos != position)
+                                    {
+                                        // Relative to this particle's original position
+                                        // If moving toward a particle of the same type, make sure it is awake
+                                        otherData.Awake = true;
+                                    }
                                 }
                                 // Only run if particle moved
                                 if (newPos != position)
                                 {
-                                    // Relative to this particle's original position
-                                    // If moving toward a particle of the same type, make sure it is awake
-                                    otherData.Awake = true;
+                                    Point originalAdjacentPos = new(position.X + adj.X, position.Y + adj.Y);
+                                    if (originalAdjacentPos.X >= 0 && originalAdjacentPos.Y >= 0
+                                        && originalAdjacentPos.X < 500 && originalAdjacentPos.Y < 500)
+                                    {
+                                        ParticleData originalAdjacentData = particleField[originalAdjacentPos.X, originalAdjacentPos.Y];
+                                        // Relative to this particle's original position
+                                        // If moving away from a particle of the same type, make sure it is awake
+                                        originalAdjacentData.Awake = true;
+                                    }
                                 }
                             }
-                            // Only run if particle moved
-                            if (newPos != position)
+                            if (allSameAdjacent && !ParticleTypes.CannotSleep.Contains(data.ParticleType))
                             {
-                                Point originalAdjacentPos = new(position.X + adj.X, position.Y + adj.Y);
-                                if (originalAdjacentPos.X >= 0 && originalAdjacentPos.Y >= 0
-                                    && originalAdjacentPos.X < 500 && originalAdjacentPos.Y < 500)
-                                {
-                                    ParticleData originalAdjacentData = particleField[originalAdjacentPos.X, originalAdjacentPos.Y];
-                                    // Relative to this particle's original position
-                                    // If moving away from a particle of the same type, make sure it is awake
-                                    originalAdjacentData.Awake = true;
-                                }
+                                // Particles surrounded by particles of the same type don't need to run physics
+                                data.Awake = false;
                             }
+                            data.PreviousPosition = position;
                         }
-                        if (allSameAdjacent && !ParticleTypes.CannotSleep.Contains(data.ParticleType))
-                        {
-                            // Particles surrounded by particles of the same type don't need to run physics
-                            data.Awake = false;
-                        }
-                        data.PreviousPosition = position;
+                        data.Age += frameTime;
                     }
-                    data.Age += frameTime;
                 }
 
                 _ = SDL.SDL_LockTexture(renderTexture, IntPtr.Zero, out pixels, out int pitch);
@@ -307,6 +314,18 @@ namespace ParticleGame
                     $"Block Replacement/Power Erase: {(blockReplacement ? "On" : "Off")}", Colors.White);
                 IntPtr blockReplacementText = SDL.SDL_CreateTextureFromSurface(screen, blockReplacementTextSfc);
                 _ = DrawTextureAtPosition(screen, blockReplacementText, new Point(10, 500 - 35));
+
+                IntPtr physicsTextSfc = SDL_ttf.TTF_RenderUTF8_Blended(fontSmall,
+                    $"Physics: {(physics ? "On" : "Off")}", Colors.White);
+                IntPtr physicsText = SDL.SDL_CreateTextureFromSurface(screen, physicsTextSfc);
+                _ = DrawTextureAtPosition(screen, physicsText, new Point(500 - 105, 500 - 35));
+
+                SDL.SDL_FreeSurface(selectedTypeTextSfc);
+                SDL.SDL_DestroyTexture(selectedTypeText);
+                SDL.SDL_FreeSurface(blockReplacementTextSfc);
+                SDL.SDL_DestroyTexture(blockReplacementText);
+                SDL.SDL_FreeSurface(physicsTextSfc);
+                SDL.SDL_DestroyTexture(physicsText);
 
                 SDL.SDL_RenderPresent(screen);
 
