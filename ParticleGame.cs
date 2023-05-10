@@ -160,7 +160,7 @@ namespace ParticleGame
                     for (int y = 0; y < 500; y++)
                     {
                         ParticleData data = particleField[x, y];
-                        if (ParticleProcessors.Processors.ContainsKey(data.ParticleType))
+                        if (data.ParticleType != ParticleTypes.Types.Air && ParticleProcessors.Processors.ContainsKey(data.ParticleType))
                         {
                             particles++;
                             if (data.Awake)
