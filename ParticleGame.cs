@@ -336,6 +336,8 @@ namespace ParticleGame
 
                 SDL.SDL_FreeSurface(selectedTypeTextSfc);
                 SDL.SDL_DestroyTexture(selectedTypeText);
+                SDL.SDL_FreeSurface(brushSizeTextSfc);
+                SDL.SDL_DestroyTexture(brushSizeText);
                 SDL.SDL_FreeSurface(blockReplacementTextSfc);
                 SDL.SDL_DestroyTexture(blockReplacementText);
                 SDL.SDL_FreeSurface(physicsTextSfc);
