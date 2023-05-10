@@ -38,14 +38,7 @@ namespace ParticleGame
             IntPtr pixels = Marshal.AllocHGlobal(500 * 500 * 4);
 
             ParticleField particleField = new(500, 500);
-
-            for (int x = 0; x < 500; x++)
-            {
-                for (int y = 0; y < 500; y++)
-                {
-                    particleField[x, y] = new ParticleData(ParticleTypes.Types.Air, new Point(x, y));
-                }
-            }
+            FieldOperations.InitialiseField(particleField);
 
             int currentParticleIndex = 1;
             int brushSize = 4;
@@ -171,6 +164,9 @@ namespace ParticleGame
                                 {
                                     brushSize = 1;
                                 }
+                                break;
+                            case SDL.SDL_Keycode.SDLK_r:
+                                FieldOperations.InitialiseField(particleField);
                                 break;
                             default:
                                 break;

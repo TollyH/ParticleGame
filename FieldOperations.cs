@@ -4,6 +4,17 @@ namespace ParticleGame
 {
     public static class FieldOperations
     {
+        public static void InitialiseField(ParticleField field)
+        {
+            for (int x = 0; x < 500; x++)
+            {
+                for (int y = 0; y < 500; y++)
+                {
+                    field[x, y] = new ParticleData(ParticleTypes.Types.Air, new Point(x, y));
+                }
+            }
+        }
+
         public static void BrushDraw(ParticleField field, Point position, ParticleTypes.Types particleType, int brushSize = 1,
             ParticleTypes.Types? filter = null)
         {
