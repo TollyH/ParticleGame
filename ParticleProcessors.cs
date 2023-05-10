@@ -129,9 +129,9 @@ namespace ParticleGame
 
         public static Point ProcessorSteam(Point position, ParticleField field, ParticleData data)
         {
-            if (data.Age >= 5)
+            if (data.Age >= 300)
             {
-                // Turn back to water if over 5 seconds old
+                // Turn back to water if over ~5 seconds old (at 60fps limit)
                 field[position.X, position.Y].ParticleType = ParticleTypes.Types.Water;
                 return position;
             }

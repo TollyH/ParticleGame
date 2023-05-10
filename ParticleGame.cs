@@ -293,7 +293,7 @@ namespace ParticleGame
                             }
                             data.PreviousPosition = position;
                         }
-                        data.Age += frameTime;
+                        data.Age++;
                     }
                 }
 
