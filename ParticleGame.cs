@@ -48,7 +48,7 @@ namespace ParticleGame
             }
 
             int currentParticleIndex = 1;
-            int brushSize = 5;
+            int brushSize = 4;
 
             Point previousMousePos = new(-1, -1);
 

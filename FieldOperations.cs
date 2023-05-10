@@ -7,12 +7,12 @@ namespace ParticleGame
         public static void BrushDraw(ParticleField field, Point position, ParticleTypes.Types particleType, int brushSize = 1,
             ParticleTypes.Types? filter = null)
         {
-            int offset = brushSize / 2;
+            float offset = brushSize / 2f;
             // Constrain to the boundaries of the field
-            int startX = Math.Max(0, position.X - offset);
-            int endX = Math.Min(500, position.X + offset);
-            int startY = Math.Max(0, position.Y - offset);
-            int endY = Math.Min(500, position.Y + offset);
+            int startX = Math.Max(0, position.X - (int)Math.Floor(offset));
+            int endX = Math.Min(500, position.X + (int)Math.Ceiling(offset));
+            int startY = Math.Max(0, position.Y - (int)Math.Floor(offset));
+            int endY = Math.Min(500, position.Y + (int)Math.Ceiling(offset));
             for (int x = startX; x < endX; x++)
             {
                 for (int y = startY; y < endY; y++)
