@@ -125,13 +125,22 @@ namespace ParticleGame
                     }
                     else if (evn.type == SDL.SDL_EventType.SDL_KEYDOWN)
                     {
+                        // Subtracting 1 from array length and adding 1 to mod results prevents 0 (Air) from being selected
                         if (evn.key.keysym.sym == SDL.SDL_Keycode.SDLK_LEFTBRACKET)
                         {
-                            currentParticleIndex = Mod(currentParticleIndex - 1, ParticleTypes.ParticleTypeArray.Length);
+                            currentParticleIndex--;
+                            if (currentParticleIndex == 0)
+                            {
+                                currentParticleIndex = ParticleTypes.ParticleTypeArray.Length - 1;
+                            }
                         }
                         else if (evn.key.keysym.sym == SDL.SDL_Keycode.SDLK_RIGHTBRACKET)
                         {
-                            currentParticleIndex = Mod(currentParticleIndex + 1, ParticleTypes.ParticleTypeArray.Length);
+                            currentParticleIndex++;
+                            if (currentParticleIndex == ParticleTypes.ParticleTypeArray.Length)
+                            {
+                                currentParticleIndex = 1;
+                            }
                         }
                     }
                 }
