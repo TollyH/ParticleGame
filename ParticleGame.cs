@@ -12,16 +12,22 @@ namespace ParticleGame
 
         private static readonly ulong performanceFrequency = SDL.SDL_GetPerformanceFrequency();
 
-        public static int Mod(int a, int b)
+        /// <summary>
+        /// Calls SDL_RenderCopy with a calculated width and height for the provided texture.
+        /// </summary>
+        public static int DrawTextureAtPosition(IntPtr renderer, IntPtr texture, Point position)
         {
-            // Needed because C#'s % operator finds the remainder, not modulo
-            return ((a % b) + b) % b;
+            _ = SDL.SDL_QueryTexture(texture, out _, out _, out int w, out int h);
+            SDL.SDL_Rect textureRect = new() { x = position.X, y = position.Y, w = w, h = h };
+            return SDL.SDL_RenderCopy(renderer, texture, IntPtr.Zero, ref textureRect);
         }
 
         public static void StartGame()
         {
             _ = SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
             _ = SDL_ttf.TTF_Init();
+
+            IntPtr font = SDL_ttf.TTF_OpenFont(@"C:\Windows\Fonts\tahomabd.ttf", 24);
 
             _ = SDL.SDL_SetHintWithPriority(SDL.SDL_HINT_RENDER_DRIVER, "direct3d11", SDL.SDL_HintPriority.SDL_HINT_OVERRIDE);
             IntPtr window = SDL.SDL_CreateWindow("Particle Game", SDL.SDL_WINDOWPOS_UNDEFINED, SDL.SDL_WINDOWPOS_UNDEFINED, 500, 500, 0);
@@ -278,6 +284,12 @@ namespace ParticleGame
 
                 SDL.SDL_UnlockTexture(renderTexture);
                 _ = SDL.SDL_RenderCopy(screen, renderTexture, IntPtr.Zero, IntPtr.Zero);
+
+                IntPtr selectedTypeTextSfc = SDL_ttf.TTF_RenderUTF8_Blended(font,
+                    ParticleTypes.FriendlyNames[currentParticleType], ParticleTypes.Colors[currentParticleType]);
+                IntPtr selectedTypeText = SDL.SDL_CreateTextureFromSurface(screen, selectedTypeTextSfc);
+                _ = DrawTextureAtPosition(screen, selectedTypeText, new Point(10, 10));
+
                 SDL.SDL_RenderPresent(screen);
 
                 Console.Write($"\r{1 / frameTime:000.00} FPS  Awake Particles: {awakeParticles:000000}  Total Particles: {particles:000000}");
@@ -292,6 +304,7 @@ namespace ParticleGame
                 renderEnd = SDL.SDL_GetPerformanceCounter();
             }
 
+            SDL_ttf.TTF_CloseFont(font);
             Marshal.FreeHGlobal(pixels);
             SDL.SDL_DestroyTexture(renderTexture);
             SDL.SDL_DestroyRenderer(screen);

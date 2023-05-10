@@ -51,5 +51,17 @@ namespace ParticleGame
         {
             Types.Air, Types.Water, Types.Lava, Types.Steam
         };
+
+        public static readonly Dictionary<Types, string> FriendlyNames = new()
+        {
+            { Types.Air, "Air" },
+            { Types.Block, "Block" },
+            { Types.Water, "Water" },
+            { Types.Sand, "Sand" },
+            { Types.RedSand, "Red Sand" },
+            { Types.Lava, "Lava" },
+            { Types.Steam, "Steam" },
+            { Types.Magma, "Magma Block" },
+        };
     }
 }
