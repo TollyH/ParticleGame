@@ -354,7 +354,7 @@ namespace ParticleGame
                 while ((float)performanceFrequency / (SDL.SDL_GetPerformanceCounter() - renderStart) > 60)
                 {
                     // Cap at 60fps
-                    SDL.SDL_Delay(1);
+                    Thread.Sleep((int)((frameTime * 1000) - (1000f / 60f)));
                 }
 
                 renderEnd = SDL.SDL_GetPerformanceCounter();
