@@ -63,6 +63,9 @@ namespace ParticleGame
             bool blockReplacement = false;
             bool physics = true;
 
+            HashSet<Point> queue = new(500 * 500);
+            List<Point> points = new(500 * 500);
+
             // Game loop
             while (!quit)
             {
@@ -181,8 +184,8 @@ namespace ParticleGame
                 int awakeParticles = 0;
                 if (physics)
                 {
-                    HashSet<Point> queue = new(500 * 500);
-                    List<Point> points = new(500 * 500);
+                    queue.Clear();
+                    points.Clear();
                     for (int x = 0; x < 500; x++)
                     {
                         for (int y = 0; y < 500; y++)
