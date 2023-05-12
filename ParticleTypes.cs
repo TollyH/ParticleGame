@@ -9,6 +9,7 @@ namespace ParticleGame
             Air,
             Block,
             Water,
+            WaterPowered,
             Sand,
             RedSand,
             Lava,
@@ -35,6 +36,7 @@ namespace ParticleGame
             { Types.Air, new() { r = 0, g = 0, b = 0, a = 255 } },
             { Types.Block, new() { r = 127, g = 127, b = 127, a = 255 } },
             { Types.Water, new() { r = 0, g = 21, b = 255, a = 255 } },
+            { Types.WaterPowered, new() { r = 28, g = 138, b = 255, a = 255 } },
             { Types.Sand, new() { r = 252, g = 193, b = 53, a = 255 } },
             { Types.RedSand, new() { r = 212, g = 115, b = 55, a = 255 } },
             { Types.Lava, new() { r = 255, g = 32, b = 32, a = 255 } },
@@ -95,7 +97,7 @@ namespace ParticleGame
         /// </summary>
         public static readonly HashSet<Types> ConductsPower = new()
         {
-            Types.Wire, Types.WirePowered, Types.Light, Types.LightPowered
+            Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered, Types.Light, Types.LightPowered
         };
 
         /// <summary>
@@ -103,6 +105,7 @@ namespace ParticleGame
         /// </summary>
         public static readonly Dictionary<Types, Types> PoweredStates = new()
         {
+            { Types.Water, Types.WaterPowered },
             { Types.Wire, Types.WirePowered },
             { Types.Light, Types.LightPowered },
         };
@@ -112,6 +115,7 @@ namespace ParticleGame
         /// </summary>
         public static readonly Dictionary<Types, Types> UnpoweredStates = new()
         {
+            { Types.WaterPowered, Types.Water },
             { Types.WirePowered, Types.Wire },
             { Types.LightPowered, Types.Light },
         };

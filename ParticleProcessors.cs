@@ -192,6 +192,7 @@ namespace ParticleGame
         public static readonly Dictionary<ParticleTypes.Types, Processor> Processors = new()
         {
             { ParticleTypes.Types.Water, new(ProcessorWater) },
+            { ParticleTypes.Types.WaterPowered, new(ProcessorWater) },
             { ParticleTypes.Types.Sand, new(ProcessorSand) },
             { ParticleTypes.Types.RedSand, new(ProcessorSand) },
             { ParticleTypes.Types.Lava, new(ProcessorWater) },
