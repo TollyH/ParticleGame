@@ -32,14 +32,29 @@ namespace ParticleGame
                 }
             }
 
-            // From any power emitters, power connected particles
+            // From any non-conditional power emitters, power connected particles
             for (int x = 0; x < 500; x++)
             {
                 for (int y = 0; y < 500; y++)
                 {
                     ParticleData data = field[x, y];
                     if (data.ParticleType != ParticleTypes.Types.Air
-                        && ParticleTypes.EmitsPower.Contains(data.ParticleType))
+                        && ParticleTypes.EmitsPower.Contains(data.ParticleType)
+                        && !ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
+                    {
+                        TransmitPower(field, new Point(x, y));
+                    }
+                }
+            }
+
+            // Second pass for conditional power emitters
+            for (int x = 0; x < 500; x++)
+            {
+                for (int y = 0; y < 500; y++)
+                {
+                    ParticleData data = field[x, y];
+                    if (data.ParticleType != ParticleTypes.Types.Air
+                        && ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
                     {
                         TransmitPower(field, new Point(x, y));
                     }

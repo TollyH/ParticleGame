@@ -134,5 +134,11 @@ namespace ParticleGame
             { Types.TapPowered, Types.Tap },
             { Types.InverterPowered, Types.Inverter },
         };
+
+        /// <summary>
+        /// Stores power emitters that only emit when unpowered.
+        /// </summary>
+        public static readonly HashSet<Types> EmitsWhenUnpowered = EmitsPower.Where(
+            x => PoweredStates.ContainsKey(x) && !EmitsPower.Contains(PoweredStates[x])).ToHashSet();
     }
 }
