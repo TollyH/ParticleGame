@@ -8,7 +8,7 @@ namespace ParticleGame
     {
         public static readonly Random RNG = new();
 
-        private static readonly Point[] Adjacent = new Point[4] { new(1, 0), new(-1, 0), new(0, 1), new(0, -1) };
+        public static readonly Point[] Adjacent = new Point[4] { new(1, 0), new(-1, 0), new(0, 1), new(0, -1) };
 
         private static readonly ulong performanceFrequency = SDL.SDL_GetPerformanceFrequency();
 
@@ -184,6 +184,7 @@ namespace ParticleGame
                 int awakeParticles = 0;
                 if (physics)
                 {
+                    Power.UpdateFieldPower(particleField);
                     queue.Clear();
                     points.Clear();
                     for (int x = 0; x < 500; x++)
