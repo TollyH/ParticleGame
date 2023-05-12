@@ -189,6 +189,15 @@ namespace ParticleGame
             return newPos;
         }
 
+        public static Point ProcessorTap(Point position, ParticleField field, ParticleData data)
+        {
+            if (position.Y < 500 - 1 && field[position.X, position.Y + 1].ParticleType == ParticleTypes.Types.Air)
+            {
+                field[position.X, position.Y + 1].ParticleType = ParticleTypes.Types.Water;
+            }
+            return position;
+        }
+
         public static readonly Dictionary<ParticleTypes.Types, Processor> Processors = new()
         {
             { ParticleTypes.Types.Water, new(ProcessorWater) },
@@ -198,6 +207,7 @@ namespace ParticleGame
             { ParticleTypes.Types.Lava, new(ProcessorWater) },
             { ParticleTypes.Types.Steam, new(ProcessorSteam) },
             { ParticleTypes.Types.Ash, new(ProcessorSand) },
+            { ParticleTypes.Types.TapPowered, new(ProcessorTap) },
         };
     }
 }

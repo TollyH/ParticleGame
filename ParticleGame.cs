@@ -195,7 +195,7 @@ namespace ParticleGame
                             if (data.ParticleType != ParticleTypes.Types.Air && ParticleProcessors.Processors.ContainsKey(data.ParticleType))
                             {
                                 particles++;
-                                if (data.Awake)
+                                if (data.Awake || ParticleTypes.CannotSleep.Contains(data.ParticleType))
                                 {
                                     Point position = new(x, y);
                                     _ = queue.Add(position);

@@ -21,6 +21,8 @@ namespace ParticleGame
             Battery,
             Light,
             LightPowered,
+            Tap,
+            TapPowered,
         }
 
         public static readonly Types[] ParticleTypeArray = new Types[]
@@ -28,7 +30,8 @@ namespace ParticleGame
             Types.Block, Types.Sand,
             Types.RedSand, Types.Water, Types.Lava,
             Types.Steam, Types.Magma, Types.Ash,
-            Types.Wire, Types.Battery, Types.Light
+            Types.Wire, Types.Battery, Types.Light,
+            Types.Tap
         };
 
         public static readonly Dictionary<Types, SDL.SDL_Color> Colors = new()
@@ -48,6 +51,8 @@ namespace ParticleGame
             { Types.Battery, new() { r = 77, g = 112, b = 57, a = 255 } },
             { Types.Light, new() { r = 120, g = 120, b = 101, a = 255 } },
             { Types.LightPowered, new() { r = 242, g = 239, b = 44, a = 255 } },
+            { Types.Tap, new() { r = 88, g = 88, b = 112, a = 255 } },
+            { Types.TapPowered, new() { r = 88, g = 88, b = 112, a = 255 } },
         };
 
         /// <summary>
@@ -56,7 +61,7 @@ namespace ParticleGame
         /// </summary>
         public static readonly HashSet<Types> CannotSleep = new()
         {
-            Types.Steam
+            Types.Steam, Types.TapPowered
         };
 
         /// <summary>
@@ -81,6 +86,7 @@ namespace ParticleGame
             { Types.Wire, "Wire" },
             { Types.Battery, "Battery" },
             { Types.Light, "Light" },
+            { Types.Tap, "Tap" },
         };
 
         /// <summary>
@@ -93,11 +99,11 @@ namespace ParticleGame
 
         /// <summary>
         /// Whether electrical power should spread through particles of this type.
-        /// Contained types must also be a key in either the <see cref="PoweredStates"/> or <see cref="UnpoweredStates"/> dictionary.
         /// </summary>
         public static readonly HashSet<Types> ConductsPower = new()
         {
-            Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered, Types.Light, Types.LightPowered
+            Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered, Types.Light, Types.LightPowered,
+            Types.Tap, Types.TapPowered
         };
 
         /// <summary>
@@ -108,6 +114,7 @@ namespace ParticleGame
             { Types.Water, Types.WaterPowered },
             { Types.Wire, Types.WirePowered },
             { Types.Light, Types.LightPowered },
+            { Types.Tap, Types.TapPowered },
         };
 
         /// <summary>
@@ -118,6 +125,7 @@ namespace ParticleGame
             { Types.WaterPowered, Types.Water },
             { Types.WirePowered, Types.Wire },
             { Types.LightPowered, Types.Light },
+            { Types.TapPowered, Types.Tap },
         };
     }
 }
