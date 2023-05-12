@@ -21,9 +21,9 @@ namespace ParticleGame
             float offset = brushSize / 2f;
             // Constrain to the boundaries of the field
             int startX = Math.Max(0, position.X - (int)Math.Floor(offset));
-            int endX = Math.Min(500, position.X + (int)Math.Ceiling(offset));
+            int endX = Math.Min(500 - 1, position.X + (int)Math.Ceiling(offset));
             int startY = Math.Max(0, position.Y - (int)Math.Floor(offset));
-            int endY = Math.Min(500, position.Y + (int)Math.Ceiling(offset));
+            int endY = Math.Min(500 - 1, position.Y + (int)Math.Ceiling(offset));
             for (int x = startX; x < endX; x++)
             {
                 for (int y = startY; y < endY; y++)
