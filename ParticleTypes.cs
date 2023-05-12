@@ -25,6 +25,8 @@ namespace ParticleGame
             TapPowered,
             Inverter,
             InverterPowered,
+            Copper,
+            CopperPowered,
         }
 
         public static readonly Types[] ParticleTypeArray = new Types[]
@@ -33,7 +35,7 @@ namespace ParticleGame
             Types.RedSand, Types.Water, Types.Lava,
             Types.Steam, Types.Magma, Types.Ash,
             Types.Wire, Types.Battery, Types.Light,
-            Types.Tap, Types.Inverter
+            Types.Tap, Types.Inverter, Types.Copper
         };
 
         public static readonly Dictionary<Types, SDL.SDL_Color> Colors = new()
@@ -57,6 +59,8 @@ namespace ParticleGame
             { Types.TapPowered, new() { r = 88, g = 88, b = 112, a = 255 } },
             { Types.Inverter, new() { r = 176, g = 130, b = 245, a = 255 } },
             { Types.InverterPowered, new() { r = 80, g = 60, b = 110, a = 255 } },
+            { Types.Copper, new() { r = 172, g = 79, b = 0, a = 255 } },
+            { Types.CopperPowered, new() { r = 234, g = 135, b = 30, a = 255 } },
         };
 
         /// <summary>
@@ -92,6 +96,7 @@ namespace ParticleGame
             { Types.Light, "Light" },
             { Types.Tap, "Tap" },
             { Types.Inverter, "Inverter" },
+            { Types.Copper, "Copper" },
         };
 
         /// <summary>
@@ -108,7 +113,18 @@ namespace ParticleGame
         /// </summary>
         public static readonly HashSet<Types> ConductsPower = new()
         {
-            Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered
+            Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered,
+            Types.Copper, Types.CopperPowered
+        };
+
+        /// <summary>
+        /// Whether only un-conditional electrical power should spread through particles of this type.
+        /// Contained types should also be in the <see cref="ConductsPower"/> set.
+        /// Note: power always spreads through particles of the same type.
+        /// </summary>
+        public static readonly HashSet<Types> ConductsUnconditionalPower = new()
+        {
+            Types.Copper, Types.CopperPowered
         };
 
         /// <summary>
@@ -121,6 +137,7 @@ namespace ParticleGame
             { Types.Light, Types.LightPowered },
             { Types.Tap, Types.TapPowered },
             { Types.Inverter, Types.InverterPowered },
+            { Types.Copper, Types.CopperPowered },
         };
 
         /// <summary>
@@ -133,6 +150,7 @@ namespace ParticleGame
             { Types.LightPowered, Types.Light },
             { Types.TapPowered, Types.Tap },
             { Types.InverterPowered, Types.Inverter },
+            { Types.CopperPowered, Types.Copper },
         };
 
         /// <summary>

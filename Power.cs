@@ -42,7 +42,7 @@ namespace ParticleGame
                         && ParticleTypes.EmitsPower.Contains(data.ParticleType)
                         && !ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
                     {
-                        TransmitPower(field, new Point(x, y));
+                        TransmitPower(field, new Point(x, y), false);
                     }
                 }
             }
@@ -56,13 +56,13 @@ namespace ParticleGame
                     if (data.ParticleType != ParticleTypes.Types.Air
                         && ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
                     {
-                        TransmitPower(field, new Point(x, y));
+                        TransmitPower(field, new Point(x, y), true);
                     }
                 }
             }
         }
 
-        private static void TransmitPower(ParticleField field, Point point)
+        private static void TransmitPower(ParticleField field, Point point, bool conditional)
         {
             ParticleData data = field[point.X, point.Y];
             // Add all points around power emitter to queue
@@ -93,6 +93,11 @@ namespace ParticleGame
 
                 // If this particle has already been processed, move on
                 if (!seenPoints.Add(powerPoint))
+                {
+                    continue;
+                }
+                // Power source is conditional, but this particle only conducts non-conditional power
+                if (conditional && ParticleTypes.ConductsUnconditionalPower.Contains(particleType))
                 {
                     continue;
                 }
