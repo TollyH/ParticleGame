@@ -49,6 +49,7 @@ namespace ParticleGame
 
         private static void TransmitPower(ParticleField field, Point point)
         {
+            ParticleData data = field[point.X, point.Y];
             // Add all points around power emitter to queue
             foreach (Point adj in ParticleGame.Adjacent)
             {
@@ -62,35 +63,44 @@ namespace ParticleGame
 
             while (pointQueue.TryDequeue(out Point powerPoint))
             {
-                ParticleData data = field[powerPoint.X, powerPoint.Y];
-                if (data.ParticleType == ParticleTypes.Types.Air)
+                ParticleData currentData = field[powerPoint.X, powerPoint.Y];
+                if (currentData.ParticleType == ParticleTypes.Types.Air)
                 {
                     continue;
                 }
+
+                ParticleTypes.Types particleType = currentData.ParticleType;
+                // A particle cannot be powered by an emitting particle of the same type
+                if (data.ParticleType == currentData.ParticleType)
+                {
+                    continue;
+                }
+
                 // If this particle has already been processed, move on
                 if (!seenPoints.Add(powerPoint))
                 {
                     continue;
                 }
 
-                ParticleTypes.Types particleType = data.ParticleType;
-                data.ParticleType = ParticleTypes.PoweredStates.GetValueOrDefault(data.ParticleType, data.ParticleType);
-                if (data.ParticleType != particleType)
+                currentData.ParticleType = ParticleTypes.PoweredStates.GetValueOrDefault(currentData.ParticleType, currentData.ParticleType);
+                if (currentData.ParticleType != particleType)
                 {
                     // Particle type changed (i.e. became powered), update color to draw
                     field.UpdateColor(powerPoint.X, powerPoint.Y);
                 }
 
-                if (ParticleTypes.ConductsPower.Contains(data.ParticleType))
+                bool isConductive = ParticleTypes.ConductsPower.Contains(currentData.ParticleType);
+                foreach (Point adj in ParticleGame.Adjacent)
                 {
-                    // If this particle conducts power, add surrounding particles to queue
-                    foreach (Point adj in ParticleGame.Adjacent)
+                    Point newTarget = new(powerPoint.X + adj.X, powerPoint.Y + adj.Y);
+                    if (newTarget.X < 0 || newTarget.Y < 0 || newTarget.X >= 500 || newTarget.Y >= 500)
                     {
-                        Point newTarget = new(powerPoint.X + adj.X, powerPoint.Y + adj.Y);
-                        if (newTarget.X < 0 || newTarget.Y < 0 || newTarget.X >= 500 || newTarget.Y >= 500)
-                        {
-                            continue;
-                        }
+                        continue;
+                    }
+                    // If this particle conducts power, add any surrounding particles to queue,
+                    // otherwise only add particles of the same type
+                    if (isConductive || field[newTarget.X, newTarget.Y].ParticleType == particleType)
+                    {
                         pointQueue.Enqueue(newTarget);
                     }
                 }

@@ -23,6 +23,8 @@ namespace ParticleGame
             LightPowered,
             Tap,
             TapPowered,
+            Inverter,
+            InverterPowered,
         }
 
         public static readonly Types[] ParticleTypeArray = new Types[]
@@ -31,7 +33,7 @@ namespace ParticleGame
             Types.RedSand, Types.Water, Types.Lava,
             Types.Steam, Types.Magma, Types.Ash,
             Types.Wire, Types.Battery, Types.Light,
-            Types.Tap
+            Types.Tap, Types.Inverter
         };
 
         public static readonly Dictionary<Types, SDL.SDL_Color> Colors = new()
@@ -53,6 +55,8 @@ namespace ParticleGame
             { Types.LightPowered, new() { r = 242, g = 239, b = 44, a = 255 } },
             { Types.Tap, new() { r = 88, g = 88, b = 112, a = 255 } },
             { Types.TapPowered, new() { r = 88, g = 88, b = 112, a = 255 } },
+            { Types.Inverter, new() { r = 176, g = 130, b = 245, a = 255 } },
+            { Types.InverterPowered, new() { r = 80, g = 60, b = 110, a = 255 } },
         };
 
         /// <summary>
@@ -87,6 +91,7 @@ namespace ParticleGame
             { Types.Battery, "Battery" },
             { Types.Light, "Light" },
             { Types.Tap, "Tap" },
+            { Types.Inverter, "Inverter" },
         };
 
         /// <summary>
@@ -94,16 +99,16 @@ namespace ParticleGame
         /// </summary>
         public static readonly HashSet<Types> EmitsPower = new()
         {
-            Types.Battery
+            Types.Battery, Types.Inverter
         };
 
         /// <summary>
         /// Whether electrical power should spread through particles of this type.
+        /// Note: power always spreads through particles of the same type.
         /// </summary>
         public static readonly HashSet<Types> ConductsPower = new()
         {
-            Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered, Types.Light, Types.LightPowered,
-            Types.Tap, Types.TapPowered
+            Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered
         };
 
         /// <summary>
@@ -115,6 +120,7 @@ namespace ParticleGame
             { Types.Wire, Types.WirePowered },
             { Types.Light, Types.LightPowered },
             { Types.Tap, Types.TapPowered },
+            { Types.Inverter, Types.InverterPowered },
         };
 
         /// <summary>
@@ -126,6 +132,7 @@ namespace ParticleGame
             { Types.WirePowered, Types.Wire },
             { Types.LightPowered, Types.Light },
             { Types.TapPowered, Types.Tap },
+            { Types.InverterPowered, Types.Inverter },
         };
     }
 }
