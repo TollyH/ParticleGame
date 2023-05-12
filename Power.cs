@@ -6,7 +6,7 @@ namespace ParticleGame
     {
         // Predefining hash set prevents excessive heap allocations.
         private static readonly HashSet<Point> seenPoints = new(500 * 500);
-        private static readonly Queue<Point> pointQueue = new(500 * 500);
+        private static readonly Queue<(Point, ParticleTypes.Types)> pointQueue = new(500 * 500);
 
         public static void UpdateFieldPower(ParticleField field)
         {
@@ -42,10 +42,30 @@ namespace ParticleGame
                         && ParticleTypes.EmitsPower.Contains(data.ParticleType)
                         && !ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
                     {
-                        TransmitPower(field, new Point(x, y), false);
+                        Point point = new(x, y);
+                        // Add all points around power emitter to queue
+                        foreach (Point adj in ParticleGame.Adjacent)
+                        {
+                            Point newTarget = new(point.X + adj.X, point.Y + adj.Y);
+                            if (newTarget.X < 0 || newTarget.Y < 0 || newTarget.X >= 500 || newTarget.Y >= 500)
+                            {
+                                continue;
+                            }
+                            ParticleTypes.Types particleType = field[x, y].ParticleType;
+                            // Emitters cannot directly power themselves
+                            if (particleType != field[newTarget.X, newTarget.Y].ParticleType)
+                            {
+                                pointQueue.Enqueue((newTarget, particleType));
+                            }
+                            else
+                            {
+                                _ = seenPoints.Add(newTarget);
+                            }
+                        }
                     }
                 }
             }
+            TransmitPower(field);
 
             // Second pass for conditional power emitters
             for (int x = 0; x < 500; x++)
@@ -56,28 +76,38 @@ namespace ParticleGame
                     if (data.ParticleType != ParticleTypes.Types.Air
                         && ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
                     {
-                        TransmitPower(field, new Point(x, y), true);
+                        Point point = new(x, y);
+                        // Add all points around power emitter to queue
+                        foreach (Point adj in ParticleGame.Adjacent)
+                        {
+                            Point newTarget = new(point.X + adj.X, point.Y + adj.Y);
+                            if (newTarget.X < 0 || newTarget.Y < 0 || newTarget.X >= 500 || newTarget.Y >= 500)
+                            {
+                                continue;
+                            }
+                            ParticleTypes.Types particleType = field[x, y].ParticleType;
+                            // Emitters cannot directly power themselves
+                            if (particleType != field[newTarget.X, newTarget.Y].ParticleType)
+                            {
+                                pointQueue.Enqueue((newTarget, particleType));
+                            }
+                            else
+                            {
+                                _ = seenPoints.Add(newTarget);
+                            }
+                        }
                     }
                 }
             }
+            TransmitPower(field);
         }
 
-        private static void TransmitPower(ParticleField field, Point point, bool conditional)
+        private static void TransmitPower(ParticleField field)
         {
-            ParticleData data = field[point.X, point.Y];
-            // Add all points around power emitter to queue
-            foreach (Point adj in ParticleGame.Adjacent)
+            while (pointQueue.TryDequeue(out (Point, ParticleTypes.Types) value))
             {
-                Point newTarget = new(point.X + adj.X, point.Y + adj.Y);
-                if (newTarget.X < 0 || newTarget.Y < 0 || newTarget.X >= 500 || newTarget.Y >= 500)
-                {
-                    continue;
-                }
-                pointQueue.Enqueue(newTarget);
-            }
-
-            while (pointQueue.TryDequeue(out Point powerPoint))
-            {
+                Point powerPoint = value.Item1;
+                ParticleTypes.Types previousType = value.Item2;
                 ParticleData currentData = field[powerPoint.X, powerPoint.Y];
                 if (currentData.ParticleType == ParticleTypes.Types.Air)
                 {
@@ -85,19 +115,16 @@ namespace ParticleGame
                 }
 
                 ParticleTypes.Types particleType = currentData.ParticleType;
-                // A particle cannot be powered by an emitting particle of the same type
-                if (data.ParticleType == currentData.ParticleType)
+
+                // Power source is conditional, but this particle only conducts non-conditional power
+                if (ParticleTypes.EmitsWhenUnpowered.Contains(previousType)
+                    && ParticleTypes.ConductsUnconditionalPower.Contains(particleType))
                 {
                     continue;
                 }
 
                 // If this particle has already been processed, move on
                 if (!seenPoints.Add(powerPoint))
-                {
-                    continue;
-                }
-                // Power source is conditional, but this particle only conducts non-conditional power
-                if (conditional && ParticleTypes.ConductsUnconditionalPower.Contains(particleType))
                 {
                     continue;
                 }
@@ -119,9 +146,11 @@ namespace ParticleGame
                     }
                     // If this particle conducts power, add any surrounding particles to queue,
                     // otherwise only add particles of the same type
-                    if (isConductive || field[newTarget.X, newTarget.Y].ParticleType == particleType)
+                    ParticleTypes.Types newType = field[newTarget.X, newTarget.Y].ParticleType;
+                    if ((isConductive || newType == particleType)
+                        && (!ParticleTypes.WillNotPowerEmitters.Contains(particleType) || !ParticleTypes.EmitsPower.Contains(newType)))
                     {
-                        pointQueue.Enqueue(newTarget);
+                        pointQueue.Enqueue((newTarget, particleType));
                     }
                 }
             }

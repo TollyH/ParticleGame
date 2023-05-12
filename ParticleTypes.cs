@@ -27,6 +27,8 @@ namespace ParticleGame
             InverterPowered,
             Copper,
             CopperPowered,
+            Steel,
+            SteelPowered,
         }
 
         public static readonly Types[] ParticleTypeArray = new Types[]
@@ -35,7 +37,8 @@ namespace ParticleGame
             Types.RedSand, Types.Water, Types.Lava,
             Types.Steam, Types.Magma, Types.Ash,
             Types.Wire, Types.Battery, Types.Light,
-            Types.Tap, Types.Inverter, Types.Copper
+            Types.Tap, Types.Inverter, Types.Copper,
+            Types.Steel
         };
 
         public static readonly Dictionary<Types, SDL.SDL_Color> Colors = new()
@@ -61,6 +64,8 @@ namespace ParticleGame
             { Types.InverterPowered, new() { r = 80, g = 60, b = 110, a = 255 } },
             { Types.Copper, new() { r = 172, g = 79, b = 0, a = 255 } },
             { Types.CopperPowered, new() { r = 234, g = 135, b = 30, a = 255 } },
+            { Types.Steel, new() { r = 137, g = 139, b = 143, a = 255 } },
+            { Types.SteelPowered, new() { r = 193, g = 196, b = 201, a = 255 } },
         };
 
         /// <summary>
@@ -97,6 +102,7 @@ namespace ParticleGame
             { Types.Tap, "Tap" },
             { Types.Inverter, "Inverter" },
             { Types.Copper, "Copper" },
+            { Types.Steel, "Steel" },
         };
 
         /// <summary>
@@ -114,7 +120,7 @@ namespace ParticleGame
         public static readonly HashSet<Types> ConductsPower = new()
         {
             Types.Water, Types.WaterPowered, Types.Wire, Types.WirePowered,
-            Types.Copper, Types.CopperPowered
+            Types.Copper, Types.CopperPowered, Types.Steel, Types.SteelPowered
         };
 
         /// <summary>
@@ -128,6 +134,15 @@ namespace ParticleGame
         };
 
         /// <summary>
+        /// Whether this type should not conduct power to emitters.
+        /// Contained types should also be in the <see cref="ConductsPower"/> set.
+        /// </summary>
+        public static readonly HashSet<Types> WillNotPowerEmitters = new()
+        {
+            Types.Steel, Types.SteelPowered
+        };
+
+        /// <summary>
         /// Maps unpowered particle types to their powered counterparts (if applicable).
         /// </summary>
         public static readonly Dictionary<Types, Types> PoweredStates = new()
@@ -138,6 +153,7 @@ namespace ParticleGame
             { Types.Tap, Types.TapPowered },
             { Types.Inverter, Types.InverterPowered },
             { Types.Copper, Types.CopperPowered },
+            { Types.Steel, Types.SteelPowered },
         };
 
         /// <summary>
@@ -151,6 +167,7 @@ namespace ParticleGame
             { Types.TapPowered, Types.Tap },
             { Types.InverterPowered, Types.Inverter },
             { Types.CopperPowered, Types.Copper },
+            { Types.SteelPowered, Types.Steel },
         };
 
         /// <summary>
