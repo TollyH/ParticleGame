@@ -4,6 +4,77 @@ namespace ParticleGame
 {
     public static class Power
     {
+        /// <summary>
+        /// Contains particle types which emit power to adjacent particles.
+        /// </summary>
+        public static readonly HashSet<ParticleTypes.Types> EmitsPower = new()
+        {
+            ParticleTypes.Types.Battery, ParticleTypes.Types.Inverter
+        };
+
+        /// <summary>
+        /// Whether electrical power should spread through particles of this type.
+        /// Note: power always spreads through particles of the same type.
+        /// </summary>
+        public static readonly HashSet<ParticleTypes.Types> ConductsPower = new()
+        {
+            ParticleTypes.Types.Water, ParticleTypes.Types.WaterPowered, ParticleTypes.Types.Wire, ParticleTypes.Types.WirePowered,
+            ParticleTypes.Types.Copper, ParticleTypes.Types.CopperPowered, ParticleTypes.Types.Steel, ParticleTypes.Types.SteelPowered
+        };
+
+        /// <summary>
+        /// Whether only un-conditional electrical power should spread through particles of this type.
+        /// Contained types should also be in the <see cref="ConductsPower"/> set.
+        /// Note: power always spreads through particles of the same type.
+        /// </summary>
+        public static readonly HashSet<ParticleTypes.Types> ConductsUnconditionalPower = new()
+        {
+            ParticleTypes.Types.Copper, ParticleTypes.Types.CopperPowered
+        };
+
+        /// <summary>
+        /// Whether this type should not conduct power to emitters.
+        /// Contained types should also be in the <see cref="ConductsPower"/> set.
+        /// </summary>
+        public static readonly HashSet<ParticleTypes.Types> WillNotPowerEmitters = new()
+        {
+            ParticleTypes.Types.Steel, ParticleTypes.Types.SteelPowered
+        };
+
+        /// <summary>
+        /// Maps unpowered particle types to their powered counterparts (if applicable).
+        /// </summary>
+        public static readonly Dictionary<ParticleTypes.Types, ParticleTypes.Types> PoweredStates = new()
+        {
+            { ParticleTypes.Types.Water, ParticleTypes.Types.WaterPowered },
+            { ParticleTypes.Types.Wire, ParticleTypes.Types.WirePowered },
+            { ParticleTypes.Types.Light, ParticleTypes.Types.LightPowered },
+            { ParticleTypes.Types.Tap, ParticleTypes.Types.TapPowered },
+            { ParticleTypes.Types.Inverter, ParticleTypes.Types.InverterPowered },
+            { ParticleTypes.Types.Copper, ParticleTypes.Types.CopperPowered },
+            { ParticleTypes.Types.Steel, ParticleTypes.Types.SteelPowered },
+        };
+
+        /// <summary>
+        /// Maps powered particle types to their unpowered counterparts (if applicable).
+        /// </summary>
+        public static readonly Dictionary<ParticleTypes.Types, ParticleTypes.Types> UnpoweredStates = new()
+        {
+            { ParticleTypes.Types.WaterPowered, ParticleTypes.Types.Water },
+            { ParticleTypes.Types.WirePowered, ParticleTypes.Types.Wire },
+            { ParticleTypes.Types.LightPowered, ParticleTypes.Types.Light },
+            { ParticleTypes.Types.TapPowered, ParticleTypes.Types.Tap },
+            { ParticleTypes.Types.InverterPowered, ParticleTypes.Types.Inverter },
+            { ParticleTypes.Types.CopperPowered, ParticleTypes.Types.Copper },
+            { ParticleTypes.Types.SteelPowered, ParticleTypes.Types.Steel },
+        };
+
+        /// <summary>
+        /// Stores power emitters that only emit when unpowered.
+        /// </summary>
+        public static readonly HashSet<ParticleTypes.Types> EmitsWhenUnpowered = EmitsPower.Where(
+            x => PoweredStates.ContainsKey(x) && !EmitsPower.Contains(PoweredStates[x])).ToHashSet();
+
         // Predefining hash set prevents excessive heap allocations.
         private static readonly HashSet<Point> seenPoints = new(500 * 500);
         private static readonly Queue<(Point, ParticleTypes.Types)> pointQueue = new(500 * 500);
@@ -23,7 +94,7 @@ namespace ParticleGame
                         continue;
                     }
                     ParticleTypes.Types particleType = data.ParticleType;
-                    data.ParticleType = ParticleTypes.UnpoweredStates.GetValueOrDefault(particleType, particleType);
+                    data.ParticleType = UnpoweredStates.GetValueOrDefault(particleType, particleType);
                     if (particleType != data.ParticleType)
                     {
                         // Particle type changed (i.e. became unpowered), update color to draw
@@ -39,8 +110,8 @@ namespace ParticleGame
                 {
                     ParticleData data = field[x, y];
                     if (data.ParticleType != ParticleTypes.Types.Air
-                        && ParticleTypes.EmitsPower.Contains(data.ParticleType)
-                        && !ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
+                        && EmitsPower.Contains(data.ParticleType)
+                        && !EmitsWhenUnpowered.Contains(data.ParticleType))
                     {
                         Point point = new(x, y);
                         // Add all points around power emitter to queue
@@ -74,7 +145,7 @@ namespace ParticleGame
                 {
                     ParticleData data = field[x, y];
                     if (data.ParticleType != ParticleTypes.Types.Air
-                        && ParticleTypes.EmitsWhenUnpowered.Contains(data.ParticleType))
+                        && EmitsWhenUnpowered.Contains(data.ParticleType))
                     {
                         Point point = new(x, y);
                         // Add all points around power emitter to queue
@@ -117,8 +188,8 @@ namespace ParticleGame
                 ParticleTypes.Types particleType = currentData.ParticleType;
 
                 // Power source is conditional, but this particle only conducts non-conditional power
-                if (ParticleTypes.EmitsWhenUnpowered.Contains(previousType)
-                    && ParticleTypes.ConductsUnconditionalPower.Contains(particleType))
+                if (EmitsWhenUnpowered.Contains(previousType)
+                    && ConductsUnconditionalPower.Contains(particleType))
                 {
                     continue;
                 }
@@ -129,14 +200,14 @@ namespace ParticleGame
                     continue;
                 }
 
-                currentData.ParticleType = ParticleTypes.PoweredStates.GetValueOrDefault(currentData.ParticleType, currentData.ParticleType);
+                currentData.ParticleType = PoweredStates.GetValueOrDefault(currentData.ParticleType, currentData.ParticleType);
                 if (currentData.ParticleType != particleType)
                 {
                     // Particle type changed (i.e. became powered), update color to draw
                     field.UpdateColor(powerPoint.X, powerPoint.Y);
                 }
 
-                bool isConductive = ParticleTypes.ConductsPower.Contains(currentData.ParticleType);
+                bool isConductive = ConductsPower.Contains(currentData.ParticleType);
                 foreach (Point adj in ParticleGame.Adjacent)
                 {
                     Point newTarget = new(powerPoint.X + adj.X, powerPoint.Y + adj.Y);
@@ -148,7 +219,7 @@ namespace ParticleGame
                     // otherwise only add particles of the same type
                     ParticleTypes.Types newType = field[newTarget.X, newTarget.Y].ParticleType;
                     if ((isConductive || newType == particleType)
-                        && (!ParticleTypes.WillNotPowerEmitters.Contains(particleType) || !ParticleTypes.EmitsPower.Contains(newType)))
+                        && (!WillNotPowerEmitters.Contains(particleType) || !EmitsPower.Contains(newType)))
                     {
                         pointQueue.Enqueue((newTarget, particleType));
                     }
