@@ -6,11 +6,13 @@ namespace ParticleGame
     {
         public ParticleData[,] ParticleData { get; private set; }
         public SDL.SDL_Color[,] ParticleColors { get; private set; }
+        public (DateTime Time, ParticleTypes.Types ParticleType) LastChange { get; private set; }
 
         public ParticleField(int xSize, int ySize)
         {
             ParticleData = new ParticleData[xSize, ySize];
             ParticleColors = new SDL.SDL_Color[xSize, ySize];
+            LastChange = (DateTime.Now, ParticleTypes.Types.Air);
         }
 
         public ParticleData this[int x, int y]
@@ -20,6 +22,7 @@ namespace ParticleGame
             {
                 ParticleData[x, y] = value;
                 ParticleColors[x, y] = ParticleTypes.Colors[value.ParticleType];
+                LastChange = (DateTime.Now, value.ParticleType);
             }
         }
 
@@ -28,9 +31,11 @@ namespace ParticleGame
             return ParticleData.GetLength(dimension);
         }
 
-        public void UpdateColor(int x, int y)
+        public void UpdatePoint(int x, int y)
         {
-            ParticleColors[x, y] = ParticleTypes.Colors[ParticleData[x, y].ParticleType];
+            ParticleTypes.Types type = ParticleData[x, y].ParticleType;
+            ParticleColors[x, y] = ParticleTypes.Colors[type];
+            LastChange = (DateTime.Now, type);
         }
 
         public System.Collections.IEnumerator GetEnumerator()
